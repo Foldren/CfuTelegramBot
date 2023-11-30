@@ -1,13 +1,13 @@
 version: "3.3"
 services:
-  bot_upravlyaika:
+  telegram_bot:
     build: .
-    image: bot_upravlyaika
-    container_name: BOT__Upravlyaika.aiogram
+    image: telegram_bot
+    container_name: telegram_bot
     environment:
       - TZ=Europe/Moscow
     volumes:
-      - /home/.VOLUMES/BOT__Upravlyaika.aiogram/source:/source:rw
+      - /home/user/.volumes/telegram_bot/source:/source:rw
     tty: true
     working_dir: /source
     command: ["python", "bot.py"]
