@@ -18,7 +18,7 @@ from handlers.admins.manage_payment_accounts import get_list_payment_accounts, a
 from handlers.admins.manage_users import get_list_users, add_user, change_user, delete_user
 from handlers.members import check_events_notification_groups, confirm_issuance_report, technical_support, \
     manage_confirm_notifications
-from handlers.members.timekeepers import write_new_report_card_user
+from handlers.members.timekeep import write_new_report_card_user
 from handlers.super_admin import add_new_client
 from handlers.users import start_user, open_nested_menu, show_user_stats, request_money_report
 from handlers.users.categories_operations import browse_categories, write_chosen_category_to_bd, \
@@ -27,11 +27,11 @@ from handlers.users.report_operations import write_issuance_of_report_to_bd, wri
     get_balance_in_report
 from handlers.users.wallets_operations import change_wallets_list, write_transfer_to_wallet_to_bd
 from init_db import init_db
-from microservices.google_api.google_drive import GoogleDrive
-from microservices.google_api.google_table import GoogleTable
-from microservices.redis_models.registrations import RedisRegistration
-from microservices.redis_models.user import RedisUser
-from microservices.redis_models.wallets import RedisUserWallets
+from modules.google_api.google_drive import GoogleDrive
+from modules.google_api.google_table import GoogleTable
+from modules.redis.registrations import RedisRegistration
+from modules.redis.user import RedisUser
+from modules.redis.wallets import RedisUserWallets
 
 admin_routers = [
     start_admin.rt, get_list_categories.rt, add_category.rt, get_list_users.rt, add_user.rt,
@@ -82,7 +82,7 @@ async def main():
     redis_registrations_users = RedisRegistration(await from_url(REDIS_URL, db=1, decode_responses=True))
     # chat_id -> hash {chat_id, name, profession, admin_id}
 
-    redis_wallets_users = RedisUserWallets(await from_url(REDIS_URL, db=2, decode_responses=True))
+    redis_wallets_users = RedisActionAlert(await from_url(REDIS_URL, db=2, decode_responses=True))
     # chat_id -> hash {bank1, bank2,..}
 
     # ЮЗЕР: При добавлении нового юзера нужно добавить ему хотя бы один кошелек
