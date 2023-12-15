@@ -1,9 +1,5 @@
 from asyncio import run
 from dataclasses import asdict, dataclass
-from json import dumps
-from typing import Any
-
-from dataclasses_json import DataClassJsonMixin
 from httpx import AsyncClient
 from modules.gateway.responses.auth import SignInResponse
 from source.config import GATEWAY_PATH
@@ -15,19 +11,14 @@ class ApiGateway:
     main_path: str = GATEWAY_PATH
     headers = {'Content-Type': 'application/json'}
 
-    def __init__(self, access_token: str = "", email: str = "", password: str = ""):
+    def __init__(self, access_token: str = ""):
         """
-        При инициализации нужно указать рабочий access_token для дальнейшей работы либо
-        email и password для авторизации
+        При инициализации нужно указать рабочий access_token для дальнейшей работы
 
         @param access_token: активный jwt токен
-        @param email: почта для авторизации
-        @param password: пароль для авторизации
         """
         if access_token:
             self.headers['Authorization'] = 'Bearer ' + access_token
-        else:
-            run(self.__auth(email, password))
 
     async def request(self, method: str, url: str, request: dataclass, d_response_obj: dataclass) -> RpcResponse:
         async with AsyncClient(verify=False) as async_session:
@@ -45,7 +36,7 @@ class ApiGateway:
 
         return rpc_response
 
-    async def __auth(self, email: str, password: str) -> RpcResponse:
+    async def auth(self, email: str, password: str) -> RpcResponse:
         rpc_response = await self.request(
             method="post",
             url="/auth/sign-in",
@@ -56,5 +47,5 @@ class ApiGateway:
         return rpc_response
 
 
-if __name__ == "__main__":
-    ApiGateway(email="bbb@gmail.com", password="P@ssw0rd123!")
+# if __name__ == "__main__":
+#     ApiGateway(email="bbb@gmail.com", password="P@ssw0rd123!")

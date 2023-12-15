@@ -1,6 +1,5 @@
 from pathlib import Path
 from os import getenv
-from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,7 +7,7 @@ load_dotenv()
 IS_THIS_LOCAL = "Pycharm" in str(Path.cwd())
 GATEWAY_PATH = getenv("GATEWAY_PATH")
 REDIS_URL = getenv("REDIS_URL")
-TOKEN = getenv("LOCAL_TOKEN_BOT")
+TOKEN = getenv("LOCAL_TOKEN_BOT") if IS_THIS_LOCAL else getenv("TOKEN_BOT")
 SECRET_KEY = getenv("SECRET_KEY")
 TECHNICAL_SUPPORT_GROUP_CHAT_ID = -4023565993
 BANKS_UPRAVLYAIKA = ["Точка", "Модуль", "Сбер", "Тинькофф", "Альфа", "Наличные", "Другой"]
@@ -19,7 +18,6 @@ BANKS_RUS_NAMES = {
 }
 SUPER_ADMINS_CHAT_ID = [330061031, 708742962]
 STATS_UPRAVLYAIKA = ["Ежедневный", "Еженедельный", "Ежемесячный", "Dashboard", "Чеки"]
-
 MAIN_MENU_MSGS = ["Меню", "Сотрудники", "Режим: Админ 👨‍💼", "Операция с категориями", "Операция с подотчетами",
                   "Перевод на кошелек", "Выдача в подотчет", "Возврат подотчета", "Режим: Юзер 🙎‍♂️",
                   "Отчеты", "Управление отчетами", "Кошельки", "Изменение списка кошельков", "⬅️ Назад в главное меню",

@@ -35,7 +35,7 @@ async def end_add_new_client(message: Message, state: FSMContext, redis_users: R
     Хэндлер на добавление нового клиента, параметры месседжа в следующем порядке
     chat_id, никнейм, полное имя, ссылка на папку для чеков, ссылка на таблицу
 
-    :param redis_users: объект redis db с users
+    :param redis_users: объект redis db с user
     :param message: объект с данными нового клиента
     :param state: стейт начала добавления
     """

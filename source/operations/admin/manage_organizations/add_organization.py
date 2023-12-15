@@ -61,7 +61,7 @@ async def choose_observers_organization(message: Message, state: FSMContext):
         'inn_new_organization': list_msg_data[0],
         'name_new_organization': list_msg_data[1],
         'status_list': status_list,
-        'users': users,
+        'user': users,
         'msg_text': message_text,
     })
 
@@ -81,9 +81,9 @@ async def change_observers_list(callback: CallbackQuery, state: FSMContext):
         'status_list': new_data['status_list'],
     })
 
-    for i in range(0, len(new_data['users'])):
+    for i in range(0, len(new_data['user'])):
         status_emoji = '' if new_data['status_list'][i] == 0 else '☑️'
-        list_names.append(f'{status_emoji} {new_data["users"][i]["fullname"].split(" ")[1]} - {new_data["users"][i]["profession"]}')
+        list_names.append(f'{status_emoji} {new_data["user"][i]["fullname"].split(" ")[1]} - {new_data["user"][i]["profession"]}')
 
     keyboard_users = await get_inline_keyb_markup(
         list_names=list_names,
@@ -107,9 +107,9 @@ async def save_add_organization(callback: CallbackQuery, state: FSMContext):
     list_id_users = []
 
     # Генерируем список выбранных пользователей
-    for i in range(0, len(data_organization['users'])):
+    for i in range(0, len(data_organization['user'])):
         if data_organization['status_list'][i] == 1:
-            list_id_users.append(int(data_organization['users'][i]['chat_id']))
+            list_id_users.append(int(data_organization['user'][i]['chat_id']))
 
     # Добавляем id админа
     list_id_users.append(callback.message.chat.id)

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 from dataclasses_json import DataClassJsonMixin
 
 
@@ -12,5 +12,5 @@ class RpcError(DataClassJsonMixin):
 
 @dataclass()
 class RpcResponse(DataClassJsonMixin):
-    data: Any = None
-    error: RpcError = None
+    data: Optional[Any] = None
+    error: Optional[RpcError] = None

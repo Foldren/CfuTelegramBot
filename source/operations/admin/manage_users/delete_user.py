@@ -51,7 +51,7 @@ async def start_delete_users(callback: CallbackQuery, state: FSMContext):
     await state.set_data({
         'list_index_users': list_index_users,
         'status_list': status_list,
-        'users': users
+        'user': users
     })
 
     await callback.message.edit_text(text=text_start_delete_users, reply_markup=keyboard_users, parse_mode="html")
@@ -69,10 +69,10 @@ async def change_delete_users_list(callback: CallbackQuery, state: FSMContext):
         'status_list': new_data['status_list'],
     })
 
-    for i in range(0, len(new_data['users'])):
+    for i in range(0, len(new_data['user'])):
         status_emoji = '' if new_data['status_list'][i] == 0 else '☑️'
         list_names.append(
-            f'{status_emoji} {new_data["users"][i]["fullname"].split(" ")[1]} - {new_data["users"][i]["profession"]}')
+            f'{status_emoji} {new_data["user"][i]["fullname"].split(" ")[1]} - {new_data["user"][i]["profession"]}')
 
     keyboard_users = await get_inline_keyb_markup(
         list_names=list_names,
@@ -92,9 +92,9 @@ async def sure_msg_delete_user(callback: CallbackQuery, state: FSMContext):
     state_data = await state.get_data()
     choose_items_names = []
 
-    for i in range(0, len(state_data['users'])):
+    for i in range(0, len(state_data['user'])):
         if state_data['status_list'][i] == 1:
-            choose_items_names.append(state_data['users'][i]['fullname'])
+            choose_items_names.append(state_data['user'][i]['fullname'])
 
     sure_msg = await get_sure_delete_usr_msg(choose_items_names)
 
@@ -115,9 +115,9 @@ async def end_delete_menu_item(callback: CallbackQuery, state: FSMContext,
 
     choose_users_chat_id_list = []
 
-    for i in range(0, len(state_data['users'])):
+    for i in range(0, len(state_data['user'])):
         if state_data['status_list'][i] == 1:
-            choose_users_chat_id_list.append(state_data['users'][i]['chat_id'])
+            choose_users_chat_id_list.append(state_data['user'][i]['chat_id'])
 
     # Удаляем их из mysql
     await UserExtend.delete_users_by_chat_ids(choose_users_chat_id_list)

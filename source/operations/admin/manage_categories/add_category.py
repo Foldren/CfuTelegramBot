@@ -79,7 +79,7 @@ async def choose_observers_category(message: Message, state: FSMContext):
         'list_index_users': list_index_users,
         'name_new_category': message.text,
         'status_list': status_list,
-        'users': users,
+        'user': users,
         'text_level': f"<b>Добавление категории:</b> (шаг 2)\n\n" + md['text_level'] +
                       f"<u>Название новой категории</u>: <b>{message.text}</b>\n",
     })
@@ -104,9 +104,9 @@ async def change_observers_list(callback: CallbackQuery, state: FSMContext):
         'status_list': new_data['status_list'],
     })
 
-    for i in range(0, len(new_data['users'])):
+    for i in range(0, len(new_data['user'])):
         status_emoji = '' if new_data['status_list'][i] == 0 else '☑️'
-        list_names.append(f'{status_emoji} {new_data["users"][i]["fullname"].split(" ")[1]} - {new_data["users"][i]["profession"]}')
+        list_names.append(f'{status_emoji} {new_data["user"][i]["fullname"].split(" ")[1]} - {new_data["user"][i]["profession"]}')
 
     keyboard_users = await get_inline_keyb_markup(
         list_names=list_names,
@@ -130,9 +130,9 @@ async def save_add_category(callback: CallbackQuery, state: FSMContext):
     list_id_users = []
 
     # Генерируем список выбранных пользователей
-    for i in range(0, len(data_category['users'])):
+    for i in range(0, len(data_category['user'])):
         if data_category['status_list'][i] == 1:
-            list_id_users.append(int(data_category['users'][i]['chat_id']))
+            list_id_users.append(int(data_category['user'][i]['chat_id']))
 
     # Добавляем id админа
     list_id_users.append(callback.message.chat.id)
