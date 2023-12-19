@@ -10,7 +10,15 @@ class RpcError(DataClassJsonMixin):
     statusCode: int
 
 
-@dataclass()
+@dataclass
 class RpcResponse(DataClassJsonMixin):
     data: Optional[Any] = None
     error: Optional[RpcError] = None
+
+
+@dataclass
+class RpcExceptionResponse(DataClassJsonMixin):
+    __slots__ = {"message", "error", "statusCode"}
+    message: list[str]
+    error: str
+    statusCode: int

@@ -1,19 +1,24 @@
+from json import dumps, loads
 from asyncio import run
 from redis.asyncio import Redis, from_url
 from config import REDIS_URL
-from modules.redis.responses.user import GetUserResponse
+from modules.redis.data.user import UserData
 
 
 class RedisUser:
-    __slots__ = {'redis_users'}
+    __slots__ = {'__user_db'}
     __user_db: Redis
 
     def __init__(self, user_db: Redis):
         self.__user_db = user_db
 
-    async def get_user(self, chat_id: int):
+    async def set(self, chat_id: int, access_token: str, fio: str):
+        data = UserData(accessToken=access_token, fio=fio).to_json()
+        await self.__user_db.set(str(chat_id), data)
+
+    async def get(self, chat_id: int) -> UserData:
         user_json = await self.__user_db.get(str(chat_id))
-        result = None if user_json is None else GetUserResponse.from_json(user_json)
+        result = None if user_json is None else UserData.from_json(user_json)
         return result
 
     # async def get_users_statuses(self, users_id_list: list[str]):

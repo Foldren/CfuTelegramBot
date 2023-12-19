@@ -5,7 +5,7 @@ from modules.redis.redis import Redis
 
 class IsNotAuthorizedFilter(BaseFilter):
     async def __call__(self, message: Message, redis: Redis) -> bool:
-        user = await redis.get_user(message.from_user.id)
+        user = await redis.user.get(message.from_user.id)
         return user is None
 
 

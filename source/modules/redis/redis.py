@@ -1,5 +1,9 @@
+from dataclasses import dataclass
 from modules.redis.user import RedisUser
 
 
-class Redis(RedisUser):
-    pass
+@dataclass
+class Redis:
+    __slots__ = {"user"}
+    user: RedisUser
+

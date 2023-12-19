@@ -1,12 +1,15 @@
 import logging
 from asyncio import run
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
+from aiogram_dialog import setup_dialogs
 from redis.asyncio import from_url
 from config import TOKEN, REDIS_URL
+from modules.redis.user import RedisUser
 from operations import handlers
 from modules.redis.redis import Redis
-from operations.not_authorized.authorization import handlers as auth_handlers
+from operations.not_authorized import handlers as authorization_handlers
+from operations.not_authorized.dialogs import authorization
 
 # admin_routers = [
 #     start_admin.rt, get_list_categories.rt, add_category.rt, get_list_users.rt, add_user.rt,
@@ -33,22 +36,38 @@ from operations.not_authorized.authorization import handlers as auth_handlers
 # ]
 
 not_authorize_routers = [
-    auth_handlers.rt
+    authorization_handlers.rt
+]
+
+dialogs = [
+    authorization
 ]
 
 
 async def main():
     bot = Bot(token=TOKEN, parse_mode='html')
-    storage = RedisStorage(await from_url(REDIS_URL, db=0, decode_responses=True))  # В 15 db стейты
+
+    storage = RedisStorage(
+        redis=await from_url(REDIS_URL, db=0, decode_responses=True),
+        key_builder=DefaultKeyBuilder(with_destiny=True)
+    )  # В 15 db стейты
+
     dp = Dispatcher(storage=storage)
-    redis = Redis(user_db=await from_url(REDIS_URL, db=1, decode_responses=True))
+
+    user = RedisUser(user_db=await from_url(REDIS_URL, db=1, decode_responses=True))
+    redis = Redis(user)
 
     # Включаем логирование, чтобы не пропустить важные сообщения
     logging.basicConfig(level=logging.INFO)
-    dp.include_routers(*not_authorize_routers, handlers.rt)
+    dp.include_routers(*not_authorize_routers, handlers.rt, *dialogs)
+    setup_dialogs(dp)
 
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot, redis=redis, allowed_updates=["message", "callback_query", "my_chat_member", "startup"])
+    await dp.start_polling(
+        bot,
+        redis=redis,
+        allowed_updates=["message", "callback_query", "my_chat_member"]
+    )
 
 
 if __name__ == "__main__":

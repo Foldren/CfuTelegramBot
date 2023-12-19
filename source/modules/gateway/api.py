@@ -1,10 +1,9 @@
-from asyncio import run
 from dataclasses import asdict, dataclass
 from httpx import AsyncClient
 from modules.gateway.responses.auth import SignInResponse
 from source.config import GATEWAY_PATH
 from source.modules.gateway.requests.auth import SignInRequest
-from source.modules.gateway.responses.rpc import RpcResponse
+from source.modules.gateway.responses.rpc import RpcResponse, RpcExceptionResponse
 
 
 class ApiGateway:
@@ -29,10 +28,13 @@ class ApiGateway:
                 json=asdict(request)
             )
 
-            rpc_response = RpcResponse.from_dict(response.json())
+            try:
+                rpc_response = RpcResponse.from_dict(response.json())
 
-            if rpc_response.data is not None:
-                rpc_response.data = d_response_obj.from_dict(rpc_response.data)
+                if rpc_response.data is not None:
+                    rpc_response.data = d_response_obj.from_dict(rpc_response.data)
+            except AttributeError:
+                rpc_response = RpcExceptionResponse.from_dict(response.json())
 
         return rpc_response
 
