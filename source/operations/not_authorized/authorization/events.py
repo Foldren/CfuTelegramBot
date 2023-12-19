@@ -1,5 +1,5 @@
 from aiogram.types import Message
-from aiogram_dialog import DialogManager
+from aiogram_dialog import DialogManager, ShowMode
 from aiogram_dialog.widgets.input import MessageInput
 from components.extends.tool import Tool
 from modules.gateway.api import ApiGateway
