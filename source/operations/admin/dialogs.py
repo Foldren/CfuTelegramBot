@@ -1,5 +1,5 @@
-from aiogram_dialog import Dialog
+from aiogram_dialog import Dialog, LaunchMode
 from operations.not_authorized.authorization.windows import start, authorization
 
 
-authorization = Dialog(start, authorization, on_close=show_last_window)
+get_categories = Dialog(start, authorization, launch_mode=LaunchMode.ROOT)

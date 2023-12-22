@@ -1,6 +1,7 @@
 from aiogram.enums import ContentType
 from aiogram_dialog import Window
 from aiogram_dialog.widgets.input import MessageInput
+from aiogram_dialog.widgets.kbd import Next
 from aiogram_dialog.widgets.text import Const, Format, Multi
 from components.text import Text
 from operations.not_authorized.authorization.events import on_authorization

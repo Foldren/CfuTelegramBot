@@ -7,8 +7,7 @@ from components.texts.admins.manage_categories import text_get_list_categories
 from microservices.sql_models_extends.category import CategoryExtend
 from components.extends import get_msg_queue, \
     get_callb_content, get_str_format_queue
-from components.keyboards_components.generators import get_inline_keyb_markup, get_inline_keyb_markup_empty, \
-    get_inline_keyb_str_full
+from components.keyboards_components.generators import get_inline_keyb_markup, get_inline_keyb_markup_empty
 from states.admin.steps_manage_categories import StepsGetCategoriesList
 
 rt = Router()

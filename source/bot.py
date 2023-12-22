@@ -1,6 +1,7 @@
 import logging
 from asyncio import run
 from aiogram import Bot, Dispatcher
+from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from aiogram_dialog import setup_dialogs
 from redis.asyncio import from_url
@@ -45,7 +46,7 @@ dialogs = [
 
 
 async def main():
-    bot = Bot(token=TOKEN, parse_mode='html')
+    bot = Bot(token=TOKEN, parse_mode=ParseMode.MARKDOWN)
 
     storage = RedisStorage(
         redis=await from_url(REDIS_URL, db=0, decode_responses=True),
