@@ -1,13 +1,14 @@
 from pathlib import Path
-from os import getenv
+from os import getenv, environ
 from dotenv import load_dotenv
 
 load_dotenv()
 
 IS_THIS_LOCAL = "Pycharm" in str(Path.cwd())
 GATEWAY_PATH = getenv("GATEWAY_PATH")
-REDIS_URL = getenv("REDIS_URL")
-TOKEN = getenv("LOCAL_TOKEN_BOT") if IS_THIS_LOCAL else getenv("TOKEN_BOT")
+JWT_SECRET = getenv("JWT_SECRET")
+REDIS_URL = environ["REDIS_URL"] if IS_THIS_LOCAL else getenv("REDIS_URL")
+TOKEN = environ["TOKEN_BOT"] if IS_THIS_LOCAL else getenv("TOKEN_BOT")
 SECRET_KEY = getenv("SECRET_KEY")
 TECHNICAL_SUPPORT_GROUP_CHAT_ID = -4023565993
 BANKS_UPRAVLYAIKA = ["Точка", "Модуль", "Сбер", "Тинькофф", "Альфа", "Наличные", "Другой"]

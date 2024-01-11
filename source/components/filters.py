@@ -10,11 +10,11 @@ class IsNotAuthorizedFilter(BaseFilter):
 
 
 # class IsAdminFilter(BaseFilter):
-#     async def __call__(self, message: Message, redis_users: RedisUser) -> bool:
-#         category = await redis_users.get_user_category(message.from_user.id)
-#         return category == 'admin'
-#
-#
+#     async def __call__(self, message: Message, redis: Redis) -> bool:
+#         user = await redis.user.get(message.from_user.id)
+#         return user.category == 'admin'
+
+
 # class IsSuperAdminFilter(BaseFilter):
 #     async def __call__(self, message: Message, redis_users: RedisUser) -> bool:
 #         return message.from_user.id in SUPER_ADMINS_CHAT_ID

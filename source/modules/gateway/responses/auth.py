@@ -1,10 +1,18 @@
 from dataclasses import dataclass
+from typing import Optional
 from dataclasses_json import DataClassJsonMixin
-from modules.gateway.responses.children import DUser
+from httpx import Cookies
+from modules.gateway.responses.children import DUser, DToken
 
 
 @dataclass
 class SignInResponse(DataClassJsonMixin):
-    __slots__ = {"message", "statusCode"}
     accessToken: str
     user: DUser
+    cookies: Optional[Cookies] = None
+
+
+@dataclass
+class RefreshResponse(DataClassJsonMixin):
+    __slots__ = {"data"}
+    data: DToken

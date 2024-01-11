@@ -9,10 +9,10 @@ from config import TOKEN, REDIS_URL
 from modules.redis.user import RedisUser
 from operations import handlers
 from modules.redis.redis import Redis
-from operations.not_authorized import handlers as authorization_handlers
+from operations.admin.dialogs import get_categories, change_menu
 from operations.not_authorized.dialogs import authorization
 
-# admin_routers = [
+# с = [
 #     start_admin.rt, get_list_categories.rt, add_category.rt, get_list_users.rt, add_user.rt,
 #     change_user.rt, change_category.rt, delete_category.rt, delete_user.rt, change_mode.rt,
 #     manage_users_stats.rt, get_list_organizations.rt, add_organization.rt, delete_organizations.rt,
@@ -36,17 +36,13 @@ from operations.not_authorized.dialogs import authorization
 #     add_new_client.rt
 # ]
 
-not_authorize_routers = [
-    authorization_handlers.rt
-]
-
 dialogs = [
-    authorization
+    authorization, get_categories, change_menu
 ]
 
 
 async def main():
-    bot = Bot(token=TOKEN, parse_mode=ParseMode.MARKDOWN)
+    bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
 
     storage = RedisStorage(
         redis=await from_url(REDIS_URL, db=0, decode_responses=True),
@@ -60,7 +56,7 @@ async def main():
 
     # Включаем логирование, чтобы не пропустить важные сообщения
     logging.basicConfig(level=logging.INFO)
-    dp.include_routers(*not_authorize_routers, handlers.rt, *dialogs)
+    dp.include_routers(handlers.rt, *dialogs)
     setup_dialogs(dp)
 
     await bot.delete_webhook(drop_pending_updates=True)

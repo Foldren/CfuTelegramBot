@@ -3,5 +3,6 @@ from dataclasses import dataclass
 
 @dataclass
 class GetCategoriesRequest:
-    email: str
-    password: str
+    __slots__ = {"userID", "parentID"}
+    userID: int
+    parentID: int

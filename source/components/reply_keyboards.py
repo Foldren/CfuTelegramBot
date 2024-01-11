@@ -1,5 +1,19 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram_dialog import StartMode
+from aiogram_dialog.widgets.kbd import Start, Group
+from aiogram_dialog.widgets.text import Const
+from operations.admin.manage.categories.get.events import on_get_categories
+from operations.admin.states import GetCategoriesLevelStates
 
+
+menu_admin_start = Group(
+    Start(
+        text=Const("Категории"),
+        id="manage_categories",
+        state=GetCategoriesLevelStates.render,
+        on_click=on_get_categories,
+    )
+)
 
 keyb_markup_start_admin = ReplyKeyboardMarkup(
     resize_keyboard=True,  # меняем размер клавиатуры

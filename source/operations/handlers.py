@@ -1,13 +1,13 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram.types import Message
+from aiogram_dialog import DialogManager, StartMode
+from components.filters import IsNotAuthorizedFilter
+from operations.not_authorized.states import AuthorizationStates
 
 rt = Router()
-
-rt.message.filter(F.chat.type == "private")
-rt.callback_query.filter(F.message.chat.type == "private")
+rt.message.filter(IsNotAuthorizedFilter(), F.chat.type == "private")
 
 
-@rt.callback_query(F.data == 'disabled')
-async def disable_button(callback: CallbackQuery):
-    await callback.answer()
-    return
+@rt.message(F.text == "Авторизация", IsNotAuthorizedFilter())
+async def authorization(message: Message, dialog_manager: DialogManager):
+    await dialog_manager.start(state=AuthorizationStates.start, mode=StartMode.RESET_STACK)

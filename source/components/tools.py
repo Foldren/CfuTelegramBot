@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
-
 from components.text import Text
 from modules.gateway.responses.rpc import RpcResponse, RpcExceptionResponse
 
@@ -26,8 +25,11 @@ class Tool:
 
         if hasattr(rpc_response, "data"):
             if hasattr(rpc_response, "error"):
-                await message.answer(text=title + msg_text + rpc_response.error.message)
-                raise CancelHandler
+                if rpc_response.error is not None:
+                    await message.answer(text=title + msg_text + rpc_response.error.message)
+                    raise CancelHandler
+                else:
+                    return response_type.from_dict(rpc_response.data)
             else:
                 return response_type.from_dict(rpc_response.data)
         else:
@@ -37,7 +39,7 @@ class Tool:
             raise CancelHandler
 
     @staticmethod
-    async def get_scrolling_group_btns(list_names: list[str], list_id: list[str], on_click_func: Any) -> list[Button]:
+    async def get_sg_buttons(list_names: list[str], list_id: list[str], on_click_func: Any) -> list[Button]:
         list_buttons = []
         for btn_id, name in list_id, list_names:
             list_buttons.append(Button(text=name, id=btn_id, on_click=on_click_func))

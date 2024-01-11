@@ -12,3 +12,17 @@ class DUser(DataClassJsonMixin):
     role: str
     subscription: list
     tariff: str
+
+
+@dataclass
+class DCategory:
+    __slots__ = {"id", "name", "status"}
+    id: int
+    name: str
+    status: bool
+
+
+@dataclass
+class DToken:
+    __slots__ = {"accessToken"}
+    accessToken: str
