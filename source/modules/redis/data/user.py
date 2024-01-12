@@ -4,6 +4,6 @@ from dataclasses_json import DataClassJsonMixin
 
 @dataclass
 class UserData(DataClassJsonMixin):
-    __slots__ = {"accessToken", "fio"}
+    __slots__ = {"accessToken", "cookies"}
     accessToken: str
-    fio: str
+    cookies: dict

@@ -2,9 +2,10 @@ from dataclasses import dataclass
 from typing import Union, Any, Awaitable
 from aiogram.dispatcher.event.bases import CancelHandler
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
+from httpx import Response
 from components.text import Text
 from modules.gateway.responses.rpc import RpcResponse, RpcExceptionResponse
 
@@ -18,10 +19,15 @@ class Tool:
         self.d_manager = d_manager
 
     @staticmethod
-    async def handle_exceptions(rpc_response: Union[RpcResponse, RpcExceptionResponse], message: Message,
-                                response_type: dataclass) -> Any:
+    async def handle_exceptions(response: Response, message: Message, response_type: dataclass) -> Any:
         title = Text.title('Ошибка')
         msg_text = "\n⛔ "
+
+        try:
+            rpc_response = RpcResponse.from_dict(response.json())
+            rpc_response.data = response_type.from_dict(rpc_response.data) if rpc_response.data is not None else None
+        except AttributeError:
+            rpc_response = RpcExceptionResponse.from_dict(response.json())
 
         if hasattr(rpc_response, "data"):
             if hasattr(rpc_response, "error"):
@@ -37,6 +43,10 @@ class Tool:
                 msg_text += row + ". "
             await message.answer(text=title + msg_text)
             raise CancelHandler
+
+    @staticmethod
+    async def get_chat_id(event: Union[Message, CallbackQuery]) -> int:
+        return event.from_user.id if hasattr(event, "data") else event.chat.id
 
     @staticmethod
     async def get_sg_buttons(list_names: list[str], list_id: list[str], on_click_func: Any) -> list[Button]:

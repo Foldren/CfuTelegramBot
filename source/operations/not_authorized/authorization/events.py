@@ -10,17 +10,10 @@ from operations.not_authorized.messages import AuthorizationMessage
 
 async def on_authorization(message: Message, widget: MessageInput, dialog_manager: DialogManager):
     message_r = AuthorizationMessage(message_text=message.text)
-    auth_r = await ApiGateway().auth(message_r.email, message_r.password)
-    processed_auth_r: SignInResponse = await Tool.handle_exceptions(auth_r, message, SignInResponse)
     redis = dialog_manager.middleware_data["redis"]
+    response = await ApiGateway(redis=redis, event=dialog_manager.event).auth(message_r.email, message_r.password)
 
-    dialog_manager.dialog_data['fio'] = processed_auth_r.user.fio
-
-    await redis.user.set(
-        chat_id=message.from_user.id,
-        access_token=processed_auth_r.accessToken,
-        fio=processed_auth_r.user.fio
-    )
+    dialog_manager.dialog_data['fio'] = response.user.fio
 
     await dialog_manager.next()
     await dialog_manager.show(show_mode=ShowMode.DELETE_AND_SEND)

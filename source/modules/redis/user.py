@@ -1,7 +1,5 @@
-from json import dumps, loads
-from asyncio import run
-from redis.asyncio import Redis, from_url
-from config import REDIS_URL
+from httpx import Cookies
+from redis.asyncio import Redis
 from modules.redis.data.user import UserData
 
 
@@ -12,8 +10,8 @@ class RedisUser:
     def __init__(self, user_db: Redis):
         self.__user_db = user_db
 
-    async def set(self, chat_id: int, access_token: str, fio: str):
-        data = UserData(accessToken=access_token, fio=fio).to_json()
+    async def set(self, chat_id: int, access_token: str, cookies: Cookies):
+        data = UserData(accessToken=access_token, cookies=cookies).to_json()
         await self.__user_db.set(str(chat_id), data)
 
     async def get(self, chat_id: int) -> UserData:

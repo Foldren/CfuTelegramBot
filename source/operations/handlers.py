@@ -8,6 +8,6 @@ rt = Router()
 rt.message.filter(IsNotAuthorizedFilter(), F.chat.type == "private")
 
 
-@rt.message(F.text == "Авторизация", IsNotAuthorizedFilter())
+@rt.message(F.text == "/auth", IsNotAuthorizedFilter())
 async def authorization(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(state=AuthorizationStates.start, mode=StartMode.RESET_STACK)
