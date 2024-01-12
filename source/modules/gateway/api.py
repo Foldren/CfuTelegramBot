@@ -1,13 +1,15 @@
 from dataclasses import asdict, dataclass
 from typing import Union, Any
+import jwt
 from aiogram.types import Message, CallbackQuery
-from httpx import AsyncClient, ReadTimeout, Cookies
+from httpx import AsyncClient
+from jwt import ExpiredSignatureError
 from components.tools import Tool
 from modules.gateway.requests.category import GetCategoriesRequest
 from modules.gateway.responses.auth import SignInResponse, RefreshResponse
 from modules.gateway.responses.category import GetCategoriesResponse
 from modules.redis.redis import Redis
-from source.config import GATEWAY_PATH
+from source.config import GATEWAY_PATH, JWT_SECRET
 from source.modules.gateway.requests.auth import SignInRequest
 
 
@@ -57,14 +59,15 @@ class ApiGateway:
         async with AsyncClient(verify=False, cookies=user.cookies, headers=self.headers) as async_session:
             # Пробуем выполнить запрос
             try:
+                jwt.decode(user.accessToken, JWT_SECRET, algorithms=["HS256"])
                 response = await async_session.request(
                     method=method,
                     url=self.main_path + url,
-                    json=asdict(request_obj),
-                    timeout=1,
+                    json=asdict(request_obj) if method == "post" else None,
+                    params=asdict(request_obj) if method != "post" else None,
                 )
 
-            except ReadTimeout:
+            except ExpiredSignatureError:
                 # Обновляем токен в случае задержки
                 await self.__refresh()
 
@@ -72,7 +75,8 @@ class ApiGateway:
                 response = await async_session.request(
                     method=method,
                     url=self.main_path + url,
-                    json=asdict(request_obj),
+                    json=asdict(request_obj) if method == "post" else None,
+                    params=asdict(request_obj) if method != "post" else None,
                 )
 
             # Проверяем на ошибки
@@ -102,15 +106,15 @@ class ApiGateway:
 
         return rpc_response
 
-    async def get_categories(self, user_id: int, parent_id: int = None) -> GetCategoriesResponse:
+    async def get_categories(self, chat_id: int, parent_id: int = None) -> GetCategoriesResponse:
+        user = await self.redis.user.get(chat_id)
+        user_data = jwt.decode(user.accessToken, JWT_SECRET, algorithms=["HS256"], options={"verify_signature": False})
+
         rpc_response = await self.__request(
             method="get",
             url="/categories",
-            request_obj=GetCategoriesRequest(user_id, parent_id),
+            request_obj=GetCategoriesRequest(user_data["id"], parent_id),
             response_obj=GetCategoriesResponse
         )
 
         return rpc_response
-
-# if __name__ == "__main__":
-#     run(ApiGateway().auth(email="bbb@gmail.com", password="P@ssw0rd123!"))

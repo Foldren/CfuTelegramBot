@@ -12,7 +12,7 @@ async def on_get_categories(event: Union[Message, CallbackQuery], button: Button
     chat_id = dialog_manager.event.from_user.id
     # select_parent_id = callback.data if callback.data != "manage_categories" else None
     api_gw = ApiGateway(redis=redis, event=dialog_manager.event)
-    categories_r = await api_gw.get_categories(user_id=chat_id, parent_id=None)
+    categories_r = await api_gw.get_categories(chat_id=chat_id, parent_id=None)
     print(categories_r)
 
 

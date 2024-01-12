@@ -25,10 +25,10 @@ get_categories = Window(
     ),
     Row(
         Start(id="add_category", text=Const("➕"), state=AddCategoryStates.select),
+        Start(id="delete_categories", text=Const("❌"), state=DeleteCategoriesStates.select),
         Start(id="edit_category", text=Const("✏️"), state=EditCategoryStates.select),
-        Start(id="delete_categories", text=Const("❌"), state=DeleteCategoriesStates.select)
+        Cancel(text=Const("⛔️"))
     ),
-    Cancel(text=Const("Главное меню")),
     # ScrollingGroup(
     #     F["dialog_data"]["categories"],
     #     id="categories",
