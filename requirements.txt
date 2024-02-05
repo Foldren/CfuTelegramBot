@@ -10,3 +10,4 @@ python-dotenv
 aiogram-dialog
 dataclasses-json
 PyJWT
+redis-om
