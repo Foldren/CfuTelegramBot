@@ -7,7 +7,7 @@ class GetCategoriesStates(StatesGroup):
 
 
 class CreateCategoryStates(StatesGroup):
-    write_params = State()
+    select_name = State()
 
 
 class UpdateCategoryStates(StatesGroup):

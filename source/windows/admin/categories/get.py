@@ -1,9 +1,8 @@
-import operator
 from aiogram import F
 from aiogram_dialog import Window
 from aiogram_dialog.widgets.kbd import Start, Cancel, Row, ScrollingGroup, Select, Button
 from aiogram_dialog.widgets.text import Const, Multi, Format
-from components.getters import gtr_get_main_categories, gtr_get_child_categories
+from components.getters import gtr_get_main_categories
 from events.admin.categories.get import get_parent_categories, get_child_categories
 from states.categories import GetCategoriesStates, DeleteCategoriesStates, CreateCategoryStates, UpdateCategoryStates
 
@@ -27,8 +26,8 @@ main_categories = Window(
         sep="\n\n"
     ),
     Row(
-        Start(id="add_category", text=Const("➕"), state=CreateCategoryStates.write_params),
-        Start(id="edit_category", text=Const("✏️"),
+        Start(id="create_category", text=Const("➕"), state=CreateCategoryStates.select_name),
+        Start(id="update_category", text=Const("✏️"),
               state=UpdateCategoryStates.select, when=F['there_are_categories']),
         Start(id="delete_categories", text=Const("❌"),
               state=DeleteCategoriesStates.select, when=F['there_are_categories']),
@@ -38,7 +37,7 @@ main_categories = Window(
         Select(
             text=Format("{item[1]}"),
             items='categories',
-            item_id_getter=operator.itemgetter(0),
+            item_id_getter=lambda i: str(i[0]) + ":" + str(i[1]),
             on_click=get_child_categories,
             id="categories_s"
         ),
@@ -54,13 +53,13 @@ main_categories = Window(
 child_categories = Window(
     Multi(
         Const("<b>Категории</b>"),
-        Format("<u>Вложенность</u>: <b>{dialog_data[queue]}</b>"),
+        Format("<u>Вложенность</u>: <b>{dialog_data[queue_frmt]}</b>"),
         sep="\n\n"
     ),
     Row(
         Button(id="back_to_parent_categories", text=Const("⬅️"), on_click=get_parent_categories),
-        Start(id="add_category", text=Const("➕"), state=CreateCategoryStates.write_params),
-        Start(id="delete_categories", text=Const("❌"),
+        Start(id="create_category", text=Const("➕"), state=CreateCategoryStates.select_name),
+        Start(id="update_category", text=Const("❌"),
               state=DeleteCategoriesStates.select, when=F['dialog_data']['there_are_categories']),
         Start(id="edit_category", text=Const("✏️"),
               state=UpdateCategoryStates.select, when=F['dialog_data']['there_are_categories']),
@@ -70,7 +69,7 @@ child_categories = Window(
         Select(
             text=Format("{item[0]}"),
             items=F['dialog_data']['categories'],
-            item_id_getter=operator.itemgetter(0),
+            item_id_getter=lambda i: str(i[0]) + ":" + str(i[1]),
             on_click=get_child_categories,
             id="categories_s"
         ),
@@ -79,5 +78,5 @@ child_categories = Window(
         height=3,
         hide_on_single_page=True,
     ),
-    state=GetCategoriesStates.render_child,
+    state=GetCategoriesStates.render_child
 )

@@ -6,20 +6,20 @@ from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from aiogram_dialog import setup_dialogs
 from aredis_om import Migrator
 from redis.asyncio import from_url
-from components.dialogs import authorization, change_menu, get_categories
+from components.dialogs import authorization, change_menu, get_categories, get_counterparties, create_category
 from config import TOKEN, REDIS_OM_URL
 from components import handlers
 
 
 admin_dialogs = [
-    authorization, change_menu, get_categories
+    authorization, change_menu, get_categories, create_category, get_counterparties
 ]
 
 
 async def main():
     bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
-    redis_conn = await from_url(url=REDIS_OM_URL, db=15, decode_responses=True)
-    storage = RedisStorage(redis=redis_conn, key_builder=DefaultKeyBuilder(with_destiny=True))  # В 15 db стейты
+    redis_conn = await from_url(url=REDIS_OM_URL, db=1, decode_responses=True)
+    storage = RedisStorage(redis=redis_conn, key_builder=DefaultKeyBuilder(with_destiny=True))  # В 1 db стейты
     dp = Dispatcher(storage=storage)
 
     # Включаем логирование, чтобы не пропустить важные сообщения

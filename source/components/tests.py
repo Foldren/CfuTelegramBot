@@ -1,9 +1,6 @@
 from asyncio import run
-from datetime import datetime, timedelta
 from http.cookiejar import Cookie
-
 import jwt
-from aiohttp import CookieJar
 from httpx import AsyncClient, Cookies
 from config import JWT_SECRET, GATEWAY_PATH
 from modules.redis.models import User
@@ -27,44 +24,14 @@ async def test():
 
 
 async def test2():
-    # user = await User.find(User.chat_id == 330061031).first()
-    # user_data = jwt.decode(user.accessToken, JWT_SECRET, algorithms=["HS256"], options={"verify_signature": False})
-    # print(user_data)
-    # print(user.cookies)
-    # user.cookies["Path"] = "/"
-    # user.cookies["Expires"] = "Sat, 03 Aug 2024 14:42:17 GMT"
-    #
-    kwargs = {
-        "version": 0,
-        "name": "refresh",
-        "value": "04b3de45-8312-4db4-868b-8ad9129c449f",
-        "port": None,
-        "port_specified": False,
-        "domain": "xn--j1ab.xn----7sbbg9ahe3aj2a1l.xn--p1ai",
-        "domain_specified": True,
-        "domain_initial_dot": False,
-        "path": "/",
-        "path_specified": True,
-        "secure": True,
-        "expires": (datetime.now() + timedelta(days=365)).toordinal(),
-        "discard": True,
-        "comment": None,
-        "comment_url": None,
-        "rest": {"HttpOnly": True},
-        "rfc2109": False,
-    }
-    cookie = Cookie(**kwargs)  # type: ignore
-    cookies = Cookies()
-    cookies.jar.set_cookie(cookie)
+    path = "https://лк.управляй-ка.рф/api/auth/refresh"
+    headers = {"User-Agent": "PostmanRuntime/7.36.1"}
 
-    async with AsyncClient() as async_session:
-        response = await async_session.post(
-            url=GATEWAY_PATH + "/auth/refresh",
-            cookies=cookies
-        )
+    async with AsyncClient(verify=True) as async_session:
+        response = await async_session.post(url=path, headers=headers, cookies={'refresh': "7375d052-a1e6-409d-abf4-8f58ca910e1d"})
 
         print(response.json())
 
-
+# запустить в 14:00
 if __name__ == "__main__":
     run(test2())

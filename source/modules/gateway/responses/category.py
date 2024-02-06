@@ -7,3 +7,9 @@ from modules.gateway.responses.children import DCategory
 class GetCategoriesResponse(DataClassJsonMixin):
     __slots__ = {"categories"}
     categories: list[DCategory]
+
+
+@dataclass
+class CreateCategoryResponse(DataClassJsonMixin):
+    __slots__ = {"id"}
+    id: int

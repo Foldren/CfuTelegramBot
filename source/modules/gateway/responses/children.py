@@ -15,7 +15,7 @@ class DUser(DataClassJsonMixin):
 
 
 @dataclass
-class DCategory:
+class DCategory(DataClassJsonMixin):
     __slots__ = {"id", "name", "status"}
     id: int
     name: str
@@ -23,6 +23,10 @@ class DCategory:
 
 
 @dataclass
-class DToken:
-    __slots__ = {"accessToken"}
-    accessToken: str
+class DCounterparty(DataClassJsonMixin):
+    __slots__ = {"id", "name", "inn", "categoryID", "categoryName"}
+    id: int
+    name: str
+    inn: str
+    categoryID: int
+    categoryName: str

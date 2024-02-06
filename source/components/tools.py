@@ -24,6 +24,8 @@ class Tool:
         msg_text = "\n⛔ "
         chat_id = await Tool.get_chat_id(event)
 
+        print(response.json())
+
         try:
             rpc_response = RpcResponse.from_dict(response.json())
             rpc_response.data = response_type.from_dict(rpc_response.data) if rpc_response.data is not None else None
@@ -91,14 +93,13 @@ class Tool:
 
     @staticmethod
     async def callback_to_dataclass(callback: CallbackQuery, dataclass_obj: dataclass) -> dataclass:
-        list_data = callback.data.split("&")
+        list_data = callback.data.split(":")
 
         # Убираем первый элемент
         list_data.pop(0)
         cls_fields = fields(dataclass_obj)
 
-        # Первый элемент пропускаем
-        i = 1
+        i = 0
         for field in cls_fields:
             if field.name != "data":
                 setattr(dataclass_obj, field.name, list_data[i])

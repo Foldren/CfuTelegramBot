@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from dataclasses_json import DataClassJsonMixin
 from httpx import Cookies
-from modules.gateway.responses.children import DUser, DToken
+from modules.gateway.responses.children import DUser
 
 
 @dataclass
@@ -14,5 +14,5 @@ class SignInResponse(DataClassJsonMixin):
 
 @dataclass
 class RefreshResponse(DataClassJsonMixin):
-    __slots__ = {"data"}
-    data: DToken
+    __slots__ = {"accessToken"}
+    accessToken: str
