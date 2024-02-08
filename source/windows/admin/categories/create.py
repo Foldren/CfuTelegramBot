@@ -14,7 +14,7 @@ select_name = Window(
               f"<i>(статус категории по умолчаниию - активный)</i>"),
         sep="\n\n"
     ),
-    Cancel(text=Const("⛔️")),
+    Cancel(text=Const("Отмена ⛔️️")),
     MessageInput(func=on_select_name, content_types=[ContentType.TEXT]),
     state=CreateCategoryStates.select_name
 )

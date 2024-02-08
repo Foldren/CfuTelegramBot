@@ -1,5 +1,6 @@
 from aiogram_dialog import Dialog, LaunchMode
 from windows.admin.categories.create import select_name
+from windows.admin.categories.delete import select_categories
 from windows.admin.categories.get import main_categories, child_categories
 from windows.admin.categories.update import select_param, select_category, update_name
 from windows.admin.counterparties.get import counterparties
@@ -21,6 +22,8 @@ get_categories = Dialog(main_categories, child_categories, launch_mode=LaunchMod
 create_category = Dialog(select_name, launch_mode=LaunchMode.SINGLE_TOP)
 
 update_category = Dialog(select_category, select_param, update_name, launch_mode=LaunchMode.SINGLE_TOP)
+
+delete_categories = Dialog(select_categories, launch_mode=LaunchMode.SINGLE_TOP)
 
 
 # counterparty

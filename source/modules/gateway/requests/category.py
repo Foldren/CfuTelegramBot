@@ -16,3 +16,9 @@ class CreateCategoryRequest:
 class UpdateCategoryRequest:
     name: str = None
     status: int = None
+
+
+@dataclass
+class DeleteCategoriesRequest:
+    __slots__ = {"categoriesID"}
+    categoriesID: list[int]

@@ -17,4 +17,4 @@ class UpdateCategoryStates(StatesGroup):
 
 
 class DeleteCategoriesStates(StatesGroup):
-    select = State()
+    select_categories = State()

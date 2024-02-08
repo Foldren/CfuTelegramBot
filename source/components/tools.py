@@ -49,6 +49,10 @@ class Tool:
         return event.from_user.id if hasattr(event, "data") else event.chat.id
 
     @staticmethod
+    async def generate_param_url(start_url: str, params_name: str, params: list) -> str:
+        return f"{start_url}?" + "&".join([f"{params_name}[{i}]={v}" for i, v in enumerate(params)])
+
+    @staticmethod
     async def message_to_dataclass(message: Message, dataclass_obj: dataclass,
                                    is_list: bool = False, to_dict: bool = False):
         msg_list_data = message.text.split("\n")

@@ -4,7 +4,7 @@ from aiogram_dialog import Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Cancel, ScrollingGroup, Select, Button, Next, Row
 from aiogram_dialog.widgets.text import Const, Multi, Format
-from components.getters import gtr_get_categories_for_update
+from components.getters import gtr_get_categories_for_update_and_delete
 from events.admin.categories.update import on_select_category, on_update_status, on_update_name
 from states.categories import UpdateCategoryStates
 
@@ -15,7 +15,7 @@ select_category = Window(
         Const("👉 Выберите категорию, которую хотите изменить."),
         sep="\n\n"
     ),
-    Cancel(text=Const("⛔️")),
+    Cancel(text=Const("Отмена ⛔️")),
     ScrollingGroup(
         Select(
             text=Format("{item[2]}{item[1]}"),
@@ -30,7 +30,7 @@ select_category = Window(
         hide_on_single_page=True,
     ),
     state=UpdateCategoryStates.select_category,
-    getter=gtr_get_categories_for_update
+    getter=gtr_get_categories_for_update_and_delete
 )
 
 select_param = Window(
@@ -40,7 +40,7 @@ select_param = Window(
         Format("<u>Выбранная категория:</u> <b>{dialog_data[selected_category][name]}</b>"),
         sep="\n\n"
     ),
-    Cancel(text=Const("⛔️")),
+    Cancel(text=Const("Отмена ⛔️")),
     Row(
         Next(text=Const("Название")),
         Button(text=Const("Статус: Активный ✅"), on_click=on_update_status,
@@ -57,7 +57,7 @@ update_name = Window(
         Const(f"👉 Введите новое имя для категории."),
         sep="\n\n"
     ),
-    Cancel(text=Const("⛔️")),
+    Cancel(text=Const("Отмена ⛔️")),
     MessageInput(func=on_update_name, content_types=[ContentType.TEXT]),
     state=UpdateCategoryStates.update_name
 )

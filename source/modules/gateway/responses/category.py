@@ -19,3 +19,9 @@ class CreateCategoryResponse(DataClassJsonMixin):
 class UpdateCategoryResponse(DataClassJsonMixin):
     __slots__ = {"id"}
     id: int
+
+
+@dataclass
+class DeleteCategoriesResponse(DataClassJsonMixin):
+    __slots__ = {"categoriesID"}
+    categoriesID: list[int]

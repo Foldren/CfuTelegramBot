@@ -7,14 +7,14 @@ from aiogram_dialog import setup_dialogs
 from aredis_om import Migrator
 from redis.asyncio import from_url
 from components.dialogs import authorization, change_menu, get_categories, get_counterparties, create_category, \
-    update_category
+    update_category, delete_categories
 from config import TOKEN, REDIS_OM_URL
 from components import handlers
 
 
 admin_dialogs = [
     authorization, change_menu,
-    get_categories, create_category, update_category,
+    get_categories, create_category, update_category, delete_categories,
     get_counterparties
 ]
 

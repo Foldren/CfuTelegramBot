@@ -8,16 +8,17 @@ from modules.redis.models import User
 
 async def test():
     user = await User.find(User.chat_id == 330061031).first()
-    user_data = jwt.decode(user.accessToken, JWT_SECRET, algorithms=["HS256"])
-    async with AsyncClient(verify=False, cookies=user.cookies,
-                           headers={"Authorization": f"Bearer {user.accessToken}"}) as async_session:
-        response = await async_session.request(
-            method="patch",
-            url=GATEWAY_PATH + '/categories/1',
-            json={"parentID": 1},
+    # user_data = jwt.decode(user.accessToken, JWT_SECRET, algorithms=["HS256"])
+    headers = {"User-Agent": "PostmanRuntime/7.36.1", "Authorization": f"Bearer {user.accessToken}"}
+
+    print(headers)
+    async with AsyncClient() as async_session:
+        response = await async_session.delete(
+            url='https://лк.управляй-ка.рф/api/categories?categoriesID[0]=12',
+            headers=headers,
         )
 
-        print(response.json())
+        print(response.text)
 
 
 async def test2():
@@ -31,4 +32,4 @@ async def test2():
 
 # запустить в 14:00
 if __name__ == "__main__":
-    run(test2())
+    run(test())

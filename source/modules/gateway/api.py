@@ -1,13 +1,13 @@
+from asyncio import sleep
 from dataclasses import asdict, dataclass
 from typing import Union, Any
 import jwt
 from aiogram.types import Message, CallbackQuery
+from fake_useragent import UserAgent
 from httpx import AsyncClient
 from jwt import ExpiredSignatureError
 from components.tools import Tool
-from modules.gateway.requests.counterparty import GetCounterpartiesRequest
 from modules.gateway.responses.auth import SignInResponse, RefreshResponse
-from modules.gateway.responses.counterparty import GetCounterpartiesResponse
 from modules.redis.models import User
 from source.config import GATEWAY_PATH, JWT_SECRET
 from source.modules.gateway.requests.auth import SignInRequest
@@ -15,7 +15,7 @@ from source.modules.gateway.requests.auth import SignInRequest
 
 class ApiGateway:
     main_path: str = GATEWAY_PATH
-    headers = {"User-Agent": "PostmanRuntime/7.36.1"}
+    headers = {"User-Agent": UserAgent().chrome}
     event: Union[Message, CallbackQuery]
 
     def __init__(self, event: Union[Message, CallbackQuery]):
@@ -27,6 +27,7 @@ class ApiGateway:
 
     async def __refresh(self):
         chat_id = await Tool.get_chat_id(self.event)
+        message = await self.event.bot.send_message(chat_id, "Обновление данных авторизации 🔄")
         user = await User.find(User.chat_id == chat_id).first()
 
         self.headers.pop('Authorization')
@@ -38,6 +39,7 @@ class ApiGateway:
                 cookies=user.cookies
             )
 
+            print(response_token)
             refresh_response = await Tool.handle_exceptions(response_token, self.event, RefreshResponse)
 
             # Обновляем access_token
@@ -48,22 +50,28 @@ class ApiGateway:
             user.cookies = {'refresh': response_token.cookies['refresh']}
             await user.save()
 
-    async def _request(self, method: str, url: str, request_obj: dataclass, response_obj) -> Any:
+        await message.delete()
+
+    async def _request(self, method: str, url: str, request_obj: dataclass, response_obj,
+                       data_in_url: bool = False) -> Any:
         # Прикрепляем текущий токен
         chat_id = await Tool.get_chat_id(event=self.event)
         user = await User.find(User.chat_id == chat_id).first()
+        dict_params = asdict(request_obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
+        json_data = dict_params if (method == "post" or method == "patch") and not data_in_url else None
+        params_data = dict_params if (method == "get" or method == "delete") and not data_in_url else None
+
         self.headers['Authorization'] = 'Bearer ' + user.accessToken
 
         async with AsyncClient(verify=False, cookies=user.cookies, headers=self.headers) as async_session:
             # Пробуем выполнить запрос
             try:
                 jwt.decode(user.accessToken, JWT_SECRET, algorithms=["HS256"])
-                dict_params = asdict(request_obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
                 response = await async_session.request(
                     method=method,
                     url=self.main_path + url,
-                    json=dict_params if (method == "post" or method == "patch") else None,
-                    params=dict_params if (method != "post" and method != "patch") else None
+                    json=json_data,
+                    params=params_data,
                 )
 
             except ExpiredSignatureError:
@@ -74,8 +82,8 @@ class ApiGateway:
                 response = await async_session.request(
                     method=method,
                     url=self.main_path + url,
-                    json=asdict(request_obj) if method == "post" else None,
-                    params=asdict(request_obj) if method != "post" else None,
+                    json=json_data,
+                    params=params_data,
                 )
 
             # Проверяем на ошибки
@@ -109,18 +117,5 @@ class ApiGateway:
             accessToken=rpc_response.accessToken,
             cookies=response.cookies
         ).save()
-
-        return rpc_response
-
-    # categories -------------------------------------------------------------------------------------------------------
-
-    async def get_counterparties(self, chat_id: int) -> GetCounterpartiesResponse:
-        user_id = await self._get_user_id(chat_id)
-        rpc_response = await self._request(
-            method="get",
-            url="/counterparties",
-            request_obj=GetCounterpartiesRequest(userID=user_id),
-            response_obj=GetCounterpartiesResponse
-        )
 
         return rpc_response
