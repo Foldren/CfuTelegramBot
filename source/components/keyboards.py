@@ -8,7 +8,7 @@ menu_admin_start = Group(
     Start(
         text=Const("Категории"),
         id="manage_categories",
-        state=GetCategoriesStates.render_main
+        state=GetCategoriesStates.render_main,
     ),
     Start(
         text=Const("Контрагенты"),

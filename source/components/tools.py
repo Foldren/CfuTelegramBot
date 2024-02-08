@@ -4,7 +4,6 @@ from aiogram.dispatcher.event.bases import CancelHandler
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import DialogManager
-from aiogram_dialog.widgets.kbd import Button
 from httpx import Response
 from components.text import Text
 from modules.gateway.responses.rpc import RpcResponse, RpcExceptionResponse
@@ -23,8 +22,6 @@ class Tool:
         title = Text.title('Ошибка')
         msg_text = "\n⛔ "
         chat_id = await Tool.get_chat_id(event)
-
-        print(response.json())
 
         try:
             rpc_response = RpcResponse.from_dict(response.json())
@@ -50,14 +47,6 @@ class Tool:
     @staticmethod
     async def get_chat_id(event: Union[Message, CallbackQuery]) -> int:
         return event.from_user.id if hasattr(event, "data") else event.chat.id
-
-    @staticmethod
-    async def get_sg_buttons(list_names: list[str], list_id: list[str], on_click_func: Any) -> list[Button]:
-        list_buttons = []
-        for btn_id, name in list_id, list_names:
-            list_buttons.append(Button(text=name, id=btn_id, on_click=on_click_func))
-
-        return list_buttons
 
     @staticmethod
     async def message_to_dataclass(message: Message, dataclass_obj: dataclass,

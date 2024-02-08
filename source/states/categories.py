@@ -11,7 +11,9 @@ class CreateCategoryStates(StatesGroup):
 
 
 class UpdateCategoryStates(StatesGroup):
-    select = State()
+    select_category = State()
+    select_param = State()
+    update_name = State()
 
 
 class DeleteCategoriesStates(StatesGroup):

@@ -5,10 +5,8 @@ from aiogram.types import Message, CallbackQuery
 from httpx import AsyncClient
 from jwt import ExpiredSignatureError
 from components.tools import Tool
-from modules.gateway.requests.category import GetCategoriesRequest, CreateCategoryRequest
 from modules.gateway.requests.counterparty import GetCounterpartiesRequest
 from modules.gateway.responses.auth import SignInResponse, RefreshResponse
-from modules.gateway.responses.category import GetCategoriesResponse, CreateCategoryResponse
 from modules.gateway.responses.counterparty import GetCounterpartiesResponse
 from modules.redis.models import User
 from source.config import GATEWAY_PATH, JWT_SECRET
@@ -47,11 +45,10 @@ class ApiGateway:
             self.headers['Authorization'] = 'Bearer ' + access_token
 
             user.accessToken = access_token
-            print(user.cookies)
-            user.cookies = response_token.cookies.__dict__
+            user.cookies = {'refresh': response_token.cookies['refresh']}
             await user.save()
 
-    async def __request(self, method: str, url: str, request_obj: dataclass, response_obj) -> Any:
+    async def _request(self, method: str, url: str, request_obj: dataclass, response_obj) -> Any:
         # Прикрепляем текущий токен
         chat_id = await Tool.get_chat_id(event=self.event)
         user = await User.find(User.chat_id == chat_id).first()
@@ -65,8 +62,8 @@ class ApiGateway:
                 response = await async_session.request(
                     method=method,
                     url=self.main_path + url,
-                    json=dict_params if method == "post" else None,
-                    params=dict_params if method != "post" else None,
+                    json=dict_params if (method == "post" or method == "patch") else None,
+                    params=dict_params if (method != "post" and method != "patch") else None
                 )
 
             except ExpiredSignatureError:
@@ -87,7 +84,7 @@ class ApiGateway:
         return rpc_response
 
     @staticmethod
-    async def __get_user_id(chat_id: int):
+    async def _get_user_id(chat_id: int):
         user = await User.find(User.chat_id == chat_id).first()
         user_data = jwt.decode(user.accessToken, JWT_SECRET, algorithms=["HS256"], options={"verify_signature": False})
 
@@ -116,31 +113,10 @@ class ApiGateway:
         return rpc_response
 
     # categories -------------------------------------------------------------------------------------------------------
-    async def get_categories(self, chat_id: int, parent_id: int = None) -> GetCategoriesResponse:
-        user_id = await self.__get_user_id(chat_id)
-        rpc_response = await self.__request(
-            method="get",
-            url="/categories",
-            request_obj=GetCategoriesRequest(userID=user_id, parentID=parent_id),
-            response_obj=GetCategoriesResponse
-        )
-
-        return rpc_response
-
-    async def create_category(self, chat_id: int, name: str, parent_id: int = None) -> CreateCategoryResponse:
-        user_id = await self.__get_user_id(chat_id)
-        rpc_response = await self.__request(
-            method="post",
-            url="/categories",
-            request_obj=CreateCategoryRequest(userID=user_id, name=name, parentID=parent_id),
-            response_obj=CreateCategoryResponse
-        )
-
-        return rpc_response
 
     async def get_counterparties(self, chat_id: int) -> GetCounterpartiesResponse:
-        user_id = await self.__get_user_id(chat_id)
-        rpc_response = await self.__request(
+        user_id = await self._get_user_id(chat_id)
+        rpc_response = await self._request(
             method="get",
             url="/counterparties",
             request_obj=GetCounterpartiesRequest(userID=user_id),

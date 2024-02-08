@@ -3,7 +3,9 @@ from aiogram_dialog import Window
 from aiogram_dialog.widgets.kbd import Start, Cancel, Row, ScrollingGroup, Select, Button
 from aiogram_dialog.widgets.text import Const, Multi, Format
 from components.getters import gtr_get_main_categories
-from events.admin.categories.get import get_parent_categories, get_child_categories
+from events.admin.categories.create import on_start_create
+from events.admin.categories.get import on_get_parents, on_get_children
+from events.admin.categories.update import on_start_update
 from states.categories import GetCategoriesStates, DeleteCategoriesStates, CreateCategoryStates, UpdateCategoryStates
 
 
@@ -26,19 +28,18 @@ main_categories = Window(
         sep="\n\n"
     ),
     Row(
-        Start(id="create_category", text=Const("➕"), state=CreateCategoryStates.select_name),
-        Start(id="update_category", text=Const("✏️"),
-              state=UpdateCategoryStates.select, when=F['there_are_categories']),
+        Button(id="create_category", text=Const("➕"), on_click=on_start_create),
+        Button(id="update_category", text=Const("✏️"), on_click=on_start_update, when=F['there_are_categories']),
         Start(id="delete_categories", text=Const("❌"),
               state=DeleteCategoriesStates.select, when=F['there_are_categories']),
         Cancel(text=Const("⛔️"))
     ),
     ScrollingGroup(
         Select(
-            text=Format("{item[1]}"),
+            text=Format("{item[2]}{item[1]}"),
             items='categories',
             item_id_getter=lambda i: str(i[0]) + ":" + str(i[1]),
-            on_click=get_child_categories,
+            on_click=on_get_children,
             id="categories_s"
         ),
         id="categories_sc",
@@ -57,20 +58,20 @@ child_categories = Window(
         sep="\n\n"
     ),
     Row(
-        Button(id="back_to_parent_categories", text=Const("⬅️"), on_click=get_parent_categories),
+        Button(id="back_to_parent_categories", text=Const("⬅️"), on_click=on_get_parents),
         Start(id="create_category", text=Const("➕"), state=CreateCategoryStates.select_name),
+        Start(id="edit_category", text=Const("✏️"),
+              state=UpdateCategoryStates.select_category, when=F['dialog_data']['there_are_categories']),
         Start(id="update_category", text=Const("❌"),
               state=DeleteCategoriesStates.select, when=F['dialog_data']['there_are_categories']),
-        Start(id="edit_category", text=Const("✏️"),
-              state=UpdateCategoryStates.select, when=F['dialog_data']['there_are_categories']),
         Cancel(text=Const("⛔️"))
     ),
     ScrollingGroup(
         Select(
-            text=Format("{item[0]}"),
+            text=Format("{item[2]}{item[0]}"),
             items=F['dialog_data']['categories'],
             item_id_getter=lambda i: str(i[0]) + ":" + str(i[1]),
-            on_click=get_child_categories,
+            on_click=on_get_children,
             id="categories_s"
         ),
         id="categories_sc",

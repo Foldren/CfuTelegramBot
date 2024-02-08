@@ -12,12 +12,9 @@ async def test():
     async with AsyncClient(verify=False, cookies=user.cookies,
                            headers={"Authorization": f"Bearer {user.accessToken}"}) as async_session:
         response = await async_session.request(
-            method="get",
-            url=GATEWAY_PATH + '/categories',
-            params={
-                "userID": user_data['id'],
-                "parentID": 1
-            },
+            method="patch",
+            url=GATEWAY_PATH + '/categories/1',
+            json={"parentID": 1},
         )
 
         print(response.json())

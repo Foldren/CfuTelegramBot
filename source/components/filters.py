@@ -1,7 +1,5 @@
-from traceback import print_exc
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
-from aredis_om import Migrator
 from modules.redis.models import User
 
 

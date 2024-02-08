@@ -13,3 +13,9 @@ class GetCategoriesResponse(DataClassJsonMixin):
 class CreateCategoryResponse(DataClassJsonMixin):
     __slots__ = {"id"}
     id: int
+
+
+@dataclass
+class UpdateCategoryResponse(DataClassJsonMixin):
+    __slots__ = {"id"}
+    id: int

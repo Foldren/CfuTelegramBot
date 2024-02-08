@@ -6,3 +6,4 @@ class User(JsonModel):
     accessToken: str
     cookies: dict
 
+
