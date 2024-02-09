@@ -1,21 +1,19 @@
-from asyncio import sleep
 from dataclasses import asdict, dataclass
 from typing import Union, Any
 import jwt
 from aiogram.types import Message, CallbackQuery
-from fake_useragent import UserAgent
 from httpx import AsyncClient
 from jwt import ExpiredSignatureError
 from components.tools import Tool
 from modules.gateway.responses.auth import SignInResponse, RefreshResponse
 from modules.redis.models import User
-from source.config import GATEWAY_PATH, JWT_SECRET
+from source.config import GATEWAY_PATH, JWT_SECRET, UA_TELEGRAM
 from source.modules.gateway.requests.auth import SignInRequest
 
 
 class ApiGateway:
     main_path: str = GATEWAY_PATH
-    headers = {"User-Agent": UserAgent().chrome}
+    headers = {"User-Agent": UA_TELEGRAM}
     event: Union[Message, CallbackQuery]
 
     def __init__(self, event: Union[Message, CallbackQuery]):
@@ -39,7 +37,6 @@ class ApiGateway:
                 cookies=user.cookies
             )
 
-            print(response_token)
             refresh_response = await Tool.handle_exceptions(response_token, self.event, RefreshResponse)
 
             # Обновляем access_token
@@ -52,14 +49,22 @@ class ApiGateway:
 
         await message.delete()
 
-    async def _request(self, method: str, url: str, request_obj: dataclass, response_obj,
+    async def _request(self, method: str, url: str, response_obj, request_obj: dataclass = None,
                        data_in_url: bool = False) -> Any:
         # Прикрепляем текущий токен
         chat_id = await Tool.get_chat_id(event=self.event)
         user = await User.find(User.chat_id == chat_id).first()
-        dict_params = asdict(request_obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
-        json_data = dict_params if (method == "post" or method == "patch") and not data_in_url else None
-        params_data = dict_params if (method == "get" or method == "delete") and not data_in_url else None
+
+        try:
+            # Преобразуем объект данных в dict, удаляем пустые значения
+            dict_params = asdict(request_obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
+            # Cтавим условия на установку параметров в зависимости от метода
+            json_data = dict_params if (method == "post" or method == "patch") and not data_in_url else None
+            params_data = dict_params if (method == "get" or method == "delete") and not data_in_url else None
+        # Если параметры указаны в строке то указываем их в None
+        except TypeError:
+            json_data = None
+            params_data = None
 
         self.headers['Authorization'] = 'Bearer ' + user.accessToken
 
@@ -75,7 +80,7 @@ class ApiGateway:
                 )
 
             except ExpiredSignatureError:
-                # Обновляем токен в случае задержки
+                # Обновляем токен в случае истечения срока действия
                 await self.__refresh()
 
                 # Снова выполняем запрос

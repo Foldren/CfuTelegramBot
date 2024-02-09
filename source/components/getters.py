@@ -1,6 +1,8 @@
 from modules.gateway.api import ApiGateway
 from modules.gateway.responses.category import GetCategoriesResponse
+from modules.gateway.responses.counterparty import GetCounterpartiesResponse
 from modules.gateway.subclasses.category import ApiCategory
+from modules.gateway.subclasses.counterparty import ApiCounterparty
 
 
 # categories -----------------------------------------------------------------------------------------------------------
@@ -33,9 +35,9 @@ async def gtr_get_categories_for_update_and_delete(**kwargs):
 
 async def gtr_get_counterparties(**kwargs):
     callback = kwargs['dialog_manager'].event
-    api_gw = ApiGateway(event=callback)
-    # counterparties_r: GetCounterpartiesResponse = await api_gw.get_counterparties(chat_id=callback.from_user.id)
-    #
-    # return {
-    #     "counterparties": [(c.name, c.inn) for c in counterparties_r.counterparties],
-    # }
+    api_gw = ApiCounterparty(event=callback)
+    counterparties_r: GetCounterpartiesResponse = await api_gw.get()
+
+    return {
+        "counterparties": [(c.name, c.inn) for c in counterparties_r.counterparties],
+    }

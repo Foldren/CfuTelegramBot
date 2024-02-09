@@ -1,13 +1,13 @@
 from aiogram import F
 from aiogram_dialog import Window
-from aiogram_dialog.widgets.kbd import Start, Cancel, Row, ScrollingGroup, Select, Button
+from aiogram_dialog.widgets.kbd import Cancel, Row, ScrollingGroup, Select, Button
 from aiogram_dialog.widgets.text import Const, Multi, Format
 from components.getters import gtr_get_main_categories
 from events.admin.categories.create import on_start_create
 from events.admin.categories.delete import on_start_delete
 from events.admin.categories.get import on_get_parents, on_get_children
 from events.admin.categories.update import on_start_update
-from states.categories import GetCategoriesStates, DeleteCategoriesStates, CreateCategoryStates, UpdateCategoryStates
+from states.categories import GetCategoriesStates
 
 
 main_categories = Window(

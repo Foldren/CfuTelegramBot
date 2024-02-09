@@ -12,5 +12,12 @@ class Text:
         return "\n" + hbold("Пример") + " (просто нажмите 👇):" + "\n" + hcode(arguments)
 
     @staticmethod
-    def title(text: str):
-        return hbold(text) + "\n"
+    def title(text: str, step: int = 1, with_step: bool = False):
+        if with_step:
+            result_text = hbold(f"{text}: ") + hitalic(f"(шаг {step})")
+        else:
+            result_text = hbold(text) + "\n"
+
+        return result_text
+
+

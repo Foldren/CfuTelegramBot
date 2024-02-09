@@ -4,5 +4,13 @@ from dataclasses_json import DataClassJsonMixin
 
 @dataclass
 class AuthorizationMessage(DataClassJsonMixin):
-    email: str = None
-    password: str = None
+    __slots__ = {"email", "password"}
+    email: str
+    password: str
+
+
+@dataclass
+class CreateCounterpartyMessage(DataClassJsonMixin):
+    __slots__ = {"inn", "name"}
+    inn: int
+    name: str
