@@ -4,8 +4,8 @@ from aiogram_dialog import Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Cancel, ScrollingGroup, Select, Button, Next, Row
 from aiogram_dialog.widgets.text import Const, Multi, Format
-from components.getters import gtr_get_categories_for_update_and_delete
-from events.admin.categories.update import on_select_category, on_update_status, on_update_name
+from getters.categories import get_for_update_or_delete, get_selected_category
+from events.categories.update import on_select_category, on_update_status, on_update_name, on_back_to_categories
 from states.categories import UpdateCategoryStates
 
 
@@ -18,9 +18,9 @@ select_category = Window(
     Cancel(text=Const("Отмена ⛔️")),
     ScrollingGroup(
         Select(
-            text=Format("{item[2]}{item[1]}"),
+            text=Format("{item[1]}"),
             items='categories',
-            item_id_getter=lambda i: str(i[0]) + ":" + str(i[1]) + ":" + str(i[3]),
+            item_id_getter=lambda item: f"{item[0]}:{item[1]}:{item[2]}",  # 0 - id, 1 - название, 2 - статус
             on_click=on_select_category,
             id="categories_s"
         ),
@@ -30,25 +30,26 @@ select_category = Window(
         hide_on_single_page=True,
     ),
     state=UpdateCategoryStates.select_category,
-    getter=gtr_get_categories_for_update_and_delete
+    getter=get_for_update_or_delete
 )
 
 select_param = Window(
     Multi(
         Const("<b>Редактирование категории:</b> <i>(шаг 2)</i>"),
         Const("👉 Выберите параметр, который хотите изменить в этой категории."),
-        Format("<u>Выбранная категория:</u> <b>{dialog_data[selected_category][name]}</b>"),
+        Format("<u>Выбранная категория:</u> <b>{selected_category[name]}</b>"),
         sep="\n\n"
     ),
-    Cancel(text=Const("Назад в меню ⬅️")),
+    Button(text=Const("Назад в меню ⬅️"), on_click=on_back_to_categories, id="back_to_categories_list"),
     Row(
         Next(text=Const("Название")),
         Button(text=Const("Статус: Активный ✅"), on_click=on_update_status,
-               when=F['dialog_data']['selected_category']['status'], id="cs_active"),
+               when=F['selected_category']['status'], id="cs_active"),
         Button(text=Const("Статус: Скрытый 💤"), on_click=on_update_status,
-               when=~F['dialog_data']['selected_category']['status'], id="cs_hidden"),
+               when=~F['selected_category']['status'], id="cs_hidden"),
     ),
-    state=UpdateCategoryStates.select_param
+    state=UpdateCategoryStates.select_param,
+    getter=get_selected_category
 )
 
 update_name = Window(

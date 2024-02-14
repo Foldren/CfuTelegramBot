@@ -9,7 +9,7 @@ class Text:
     @staticmethod
     def example(*args):
         arguments = '\n'.join([e for e in args])
-        return "\n" + hbold("Пример") + " (просто нажмите 👇):" + "\n" + hcode(arguments)
+        return hbold("Пример") + " (просто нажмите 👇):" + "\n" + hcode(arguments)
 
     @staticmethod
     def title(text: str, step: int = 1, with_step: bool = False):

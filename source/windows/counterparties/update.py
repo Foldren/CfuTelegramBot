@@ -4,8 +4,8 @@ from aiogram_dialog import Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Cancel, ScrollingGroup, Select, Button, Next, Row
 from aiogram_dialog.widgets.text import Const, Multi, Format
-from components.getters import gtr_get_categories_for_update_and_delete
-from events.admin.categories.update import on_select_category, on_update_status, on_update_name
+from getters.categories import get_for_update_or_delete
+from events.categories.update import on_select_category, on_update_status, on_update_name
 from states.categories import UpdateCategoryStates
 
 
@@ -30,7 +30,7 @@ select_category = Window(
         hide_on_single_page=True,
     ),
     state=UpdateCategoryStates.select_category,
-    getter=gtr_get_categories_for_update_and_delete
+    getter=get_for_update_or_delete
 )
 
 select_param = Window(

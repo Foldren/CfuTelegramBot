@@ -2,13 +2,12 @@ from aiogram import F
 from aiogram_dialog import Window
 from aiogram_dialog.widgets.kbd import Cancel, Row, ScrollingGroup, Select, Button
 from aiogram_dialog.widgets.text import Const, Multi, Format
-from components.getters import gtr_get_main_categories
-from events.admin.categories.create import on_start_create
-from events.admin.categories.delete import on_start_delete
-from events.admin.categories.get import on_get_parents, on_get_children
-from events.admin.categories.update import on_start_update
+from getters.categories import get_main_ones, get_children
+from events.categories.create import on_start_create
+from events.categories.delete import on_start_delete
+from events.categories.get import on_get_parents, on_get_children
+from events.categories.update import on_start_update
 from states.categories import GetCategoriesStates
-
 
 main_categories = Window(
     Multi(
@@ -36,9 +35,9 @@ main_categories = Window(
     ),
     ScrollingGroup(
         Select(
-            text=Format("{item[2]}{item[1]}"),
+            text=Format("{item[1]}"),  # Показываем название вместе со статусом
             items='categories',
-            item_id_getter=lambda i: str(i[0]) + ":" + str(i[1]),
+            item_id_getter=lambda item: f"{item[0]}:{item[1]}",  # 0 - id, 1 - название
             on_click=on_get_children,
             id="categories_s"
         ),
@@ -48,29 +47,29 @@ main_categories = Window(
         hide_on_single_page=True,
     ),
     state=GetCategoriesStates.render_main,
-    getter=gtr_get_main_categories
+    getter=get_main_ones
 )
 
 child_categories = Window(
     Multi(
         Const("<b>Категории</b>"),
-        Format("<u>Вложенность</u>: <b>{dialog_data[queue_frmt]}</b>"),
+        Format("<u>Вложенность</u>: <b>{queue_frmt}</b>"),
         sep="\n\n"
     ),
     Row(
         Button(id="back_to_parent_categories", text=Const("⬅️"), on_click=on_get_parents),
         Button(id="create_category", text=Const("➕"), on_click=on_start_create),
         Button(id="update_category", text=Const("✏️"), on_click=on_start_update,
-               when=F['dialog_data']['there_are_categories']),
+               when=F['there_are_categories']),
         Button(id="delete_categories", text=Const("❌"), on_click=on_start_delete,
-               when=F['dialog_data']['there_are_categories']),
+               when=F['there_are_categories']),
         Cancel(text=Const("⛔️"))
     ),
     ScrollingGroup(
         Select(
-            text=Format("{item[2]}{item[0]}"),
-            items=F['dialog_data']['categories'],
-            item_id_getter=lambda i: str(i[0]) + ":" + str(i[1]),
+            text=Format("{item[1]}"),  # Показываем название вместе со статусом
+            items='categories',
+            item_id_getter=lambda item: f"{item[0]}:{item[1]}",  # 0 - id, 1 - название
             on_click=on_get_children,
             id="categories_s"
         ),
@@ -79,5 +78,6 @@ child_categories = Window(
         height=3,
         hide_on_single_page=True,
     ),
-    state=GetCategoriesStates.render_child
+    state=GetCategoriesStates.render_child,
+    getter=get_children
 )

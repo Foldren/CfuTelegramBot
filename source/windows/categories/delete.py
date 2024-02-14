@@ -2,8 +2,8 @@ from aiogram import F
 from aiogram_dialog import Window
 from aiogram_dialog.widgets.kbd import Cancel, ScrollingGroup, Row, Multiselect, Button
 from aiogram_dialog.widgets.text import Const, Multi, Format
-from components.getters import gtr_get_categories_for_update_and_delete
-from events.admin.categories.delete import on_select_categories, on_save
+from getters.categories import get_for_update_or_delete
+from events.categories.delete import on_select_categories, on_save
 from states.categories import DeleteCategoriesStates
 
 
@@ -22,10 +22,10 @@ select_categories = Window(
     ),
     ScrollingGroup(
         Multiselect(
-            checked_text=Format("☑️ {item[2]}{item[1]}"),
-            unchecked_text=Format("{item[2]}{item[1]}"),
+            checked_text=Format("☑️ {item[1]}"),
+            unchecked_text=Format("{item[1]}"),
             items='categories',
-            item_id_getter=lambda i: str(i[0]),
+            item_id_getter=lambda item: f"{item[0]}",  # 0 - id
             on_state_changed=on_select_categories,
             id="categories_s"
         ),
@@ -35,5 +35,5 @@ select_categories = Window(
         hide_on_single_page=True,
     ),
     state=DeleteCategoriesStates.select_categories,
-    getter=gtr_get_categories_for_update_and_delete
+    getter=get_for_update_or_delete
 )

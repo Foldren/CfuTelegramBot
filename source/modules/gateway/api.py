@@ -61,6 +61,7 @@ class ApiGateway:
             # Cтавим условия на установку параметров в зависимости от метода
             json_data = dict_params if (method == "post" or method == "patch") and not data_in_url else None
             params_data = dict_params if (method == "get" or method == "delete") and not data_in_url else None
+
         # Если параметры указаны в строке то указываем их в None
         except TypeError:
             json_data = None
@@ -120,6 +121,7 @@ class ApiGateway:
         await User(
             chat_id=self.event.chat.id,
             accessToken=rpc_response.accessToken,
+            role=rpc_response.user.role,
             cookies=response.cookies
         ).save()
 

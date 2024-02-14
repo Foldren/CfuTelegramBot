@@ -1,6 +1,8 @@
+from components.tools import Tool
 from modules.gateway.api import ApiGateway
-from modules.gateway.requests.counterparty import CreateCounterpartyRequest
-from modules.gateway.responses.counterparty import GetCounterpartiesResponse, CreateCounterpartyResponse
+from modules.gateway.requests.counterparty import CreateCounterpartyRequest, DeleteCounterpartiesRequest
+from modules.gateway.responses.counterparty import GetCounterpartiesResponse, CreateCounterpartyResponse, \
+    DeleteCounterpartiesResponse
 
 
 class ApiCounterparty(ApiGateway):
@@ -22,7 +24,7 @@ class ApiCounterparty(ApiGateway):
         )
 
         return rpc_response
-    #
+
     # async def update(self, category_id: int, name: str = None,
     #                  status: int = None) -> UpdateCategoryResponse:
     #     rpc_response = await super()._request(
@@ -34,16 +36,17 @@ class ApiCounterparty(ApiGateway):
     #
     #     return rpc_response
     #
-    # async def delete(self, categories_id: list[int]) -> DeleteCategoriesResponse:
-    #     params_url = await Tool.generate_param_url(start_url="/categories", params_name="categoriesID",
-    #                                                params=categories_id)
-    #
-    #     rpc_response = await super()._request(
-    #         method="delete",
-    #         url=params_url,
-    #         request_obj=DeleteCategoriesRequest(categoriesID=categories_id),
-    #         response_obj=DeleteCategoriesResponse,
-    #         data_in_url=True
-    #     )
-    #
-    #     return rpc_response
+
+    async def delete(self, counterparties_id: list[int]) -> DeleteCounterpartiesResponse:
+        params_url = await Tool.generate_param_url(start_url="/counterparties", params_name="counterpartiesID",
+                                                   params=counterparties_id)
+
+        rpc_response = await super()._request(
+            method="delete",
+            url=params_url,
+            request_obj=DeleteCounterpartiesRequest(counterpartiesID=counterparties_id),
+            response_obj=DeleteCounterpartiesResponse,
+            data_in_url=True
+        )
+
+        return rpc_response

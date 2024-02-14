@@ -1,8 +1,8 @@
-import operator
 from aiogram_dialog import Window
 from aiogram_dialog.widgets.kbd import Start, Cancel, Row, ScrollingGroup, Select
 from aiogram_dialog.widgets.text import Const, Multi, Format
-from components.getters import gtr_get_counterparties
+
+from getters.counterparties import get_counterparties
 from states.counterparties import GetCounterpartiesStates, DeleteCounterpartiesStates, CreateCounterpartyStates, \
     UpdateCounterpartyStates
 
@@ -19,7 +19,7 @@ counterparties = Window(
         sep="\n\n"
     ),
     Row(
-        Start(id="add_counterparty", text=Const("➕"), state=CreateCounterpartyStates.write_params),
+        Start(id="create_counterparty", text=Const("➕"), state=CreateCounterpartyStates.write_params),
         Start(id="update_counterparty", text=Const("✏️"), state=UpdateCounterpartyStates.select_counterparty),
         Start(id="delete_counterparties", text=Const("❌"), state=DeleteCounterpartiesStates.select_counterparties),
         Cancel(text=Const("⛔️"))
@@ -28,14 +28,14 @@ counterparties = Window(
         Select(
             text=Format("{item[0]} - {item[1]}"),
             items='counterparties',
-            item_id_getter=operator.itemgetter(0, 1),
+            item_id_getter=lambda item: f"{item[0]}",
             id="counterparties_s"
         ),
         id="counterparties_sc",
-        width=2,
-        height=3,
+        width=1,
+        height=4,
         hide_on_single_page=True,
     ),
     state=GetCounterpartiesStates.render,
-    getter=gtr_get_counterparties
+    getter=get_counterparties
 )

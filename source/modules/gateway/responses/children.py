@@ -16,10 +16,11 @@ class DUser(DataClassJsonMixin):
 
 @dataclass
 class DCategory(DataClassJsonMixin):
-    __slots__ = {"id", "name", "status"}
+    __slots__ = {"id", "name", "status", "hasChildren"}
     id: int
     name: str
-    status: bool
+    status: int
+    hasChildren: bool
 
 
 @dataclass

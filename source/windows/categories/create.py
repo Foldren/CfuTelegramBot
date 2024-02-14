@@ -3,7 +3,8 @@ from aiogram_dialog import Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Cancel
 from aiogram_dialog.widgets.text import Const, Multi
-from events.admin.categories.create import on_select_name
+
+from events.categories.create import on_select_name
 from states.categories import CreateCategoryStates
 
 
@@ -16,5 +17,5 @@ select_name = Window(
     ),
     Cancel(text=Const("Отмена ⛔️️")),
     MessageInput(func=on_select_name, content_types=[ContentType.TEXT]),
-    state=CreateCategoryStates.select_name
+    state=CreateCategoryStates.select_name,
 )

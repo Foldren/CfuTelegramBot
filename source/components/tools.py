@@ -6,6 +6,8 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import DialogManager
 from httpx import Response
 from components.text import Text
+from modules.gateway.responses.category import GetCategoriesResponse
+from modules.gateway.responses.children import DCategory
 from modules.gateway.responses.rpc import RpcResponse, RpcExceptionResponse
 
 
@@ -18,7 +20,27 @@ class Tool:
         self.d_manager = d_manager
 
     @staticmethod
-    async def handle_exceptions(response: Response, event: Union[Message, CallbackQuery], response_type: dataclass) -> Any:
+    async def get_last_queue_category(dialog_data: dict):
+        return dialog_data['queue'][-1]['id'] if 'queue' in dialog_data else None
+
+    @staticmethod
+    async def get_categories_frmt(categories: list[DCategory],
+                                  extended_option: str = None):
+        match extended_option:
+            case "status":
+                result_list = [(c.id, c.name if c.status == 1 else f"💤 {c.name}", c.status, c.hasChildren)
+                               for c in categories]
+            case "has_children":
+                result_list = [(c.id, c.name if c.hasChildren else f"🔹 {c.name}", c.status, c.hasChildren)
+                               for c in categories]
+            case _:
+                result_list = [(c.id, c.name, c.status, c.hasChildren) for c in categories]
+
+        return result_list
+
+    @staticmethod
+    async def handle_exceptions(response: Response, event: Union[Message, CallbackQuery],
+                                response_type: dataclass) -> Any:
         title = Text.title('Ошибка')
         msg_text = "\n⛔ "
         chat_id = await Tool.get_chat_id(event)
@@ -95,9 +117,11 @@ class Tool:
         i = 0
         for field in cls_fields:
             if field.name != "data":
-                setattr(dataclass_obj, field.name, list_data[i])
+                # Если пошли объекты без значений значит записываем дефолтные
+                try:
+                    setattr(dataclass_obj, field.name, field.type(list_data[i]))
+                except IndexError:
+                    setattr(dataclass_obj, field.name, field.default)
                 i += 1
 
         return dataclass_obj
-
-
