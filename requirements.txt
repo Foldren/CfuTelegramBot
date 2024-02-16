@@ -1,5 +1,5 @@
 pydantic==2.0.3
-aiogram==3.1.0
+aiogram==3.0.0
 redis-om
 cryptography==41.0.7
 redis==4.6.0
