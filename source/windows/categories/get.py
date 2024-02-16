@@ -9,6 +9,7 @@ from events.categories.get import on_get_parents, on_get_children
 from events.categories.update import on_start_update
 from states.categories import GetCategoriesStates
 
+
 main_categories = Window(
     Multi(
         Const("<b>Категории</b>"),
@@ -17,7 +18,7 @@ main_categories = Window(
         Const(f"<u>Кнопки управления:</u>\n"
               f"➕ - добавить категорию на уровень.\n"
               f"✏️ - редактировать категории.\n"
-              f"❌️ - удалить категории.\n"
+              f"🗑 - удалить категории.\n"
               f"⛔️ - отменить операцию.",
               when=F['there_are_categories']),
         Const(f"<u>Кнопка управления:</u>\n"
@@ -30,18 +31,18 @@ main_categories = Window(
     Row(
         Button(id="create_category", text=Const("➕"), on_click=on_start_create),
         Button(id="update_category", text=Const("✏️"), on_click=on_start_update, when=F['there_are_categories']),
-        Button(id="delete_categories", text=Const("❌"), on_click=on_start_delete, when=F['there_are_categories']),
+        Button(id="delete_categories", text=Const("🗑"), on_click=on_start_delete, when=F['there_are_categories']),
         Cancel(text=Const("⛔️"))
     ),
     ScrollingGroup(
         Select(
-            text=Format("{item[1]}"),  # Показываем название вместе со статусом
+            text=Format("{item[name]}"),  # Показываем название вместе со статусом
             items='categories',
-            item_id_getter=lambda item: f"{item[0]}:{item[1]}",  # 0 - id, 1 - название
+            item_id_getter=lambda item: item['id'],
             on_click=on_get_children,
-            id="categories_s"
+            id="main_category"
         ),
-        id="categories_sc",
+        id="main_categories_sc",
         width=2,
         height=3,
         hide_on_single_page=True,
@@ -61,19 +62,19 @@ child_categories = Window(
         Button(id="create_category", text=Const("➕"), on_click=on_start_create),
         Button(id="update_category", text=Const("✏️"), on_click=on_start_update,
                when=F['there_are_categories']),
-        Button(id="delete_categories", text=Const("❌"), on_click=on_start_delete,
+        Button(id="delete_categories", text=Const("🗑"), on_click=on_start_delete,
                when=F['there_are_categories']),
         Cancel(text=Const("⛔️"))
     ),
     ScrollingGroup(
         Select(
-            text=Format("{item[1]}"),  # Показываем название вместе со статусом
+            text=Format("{item[name]}"),  # Показываем название вместе со статусом
             items='categories',
-            item_id_getter=lambda item: f"{item[0]}:{item[1]}",  # 0 - id, 1 - название
+            item_id_getter=lambda item: item['id'],
             on_click=on_get_children,
-            id="categories_s"
+            id="child_category"
         ),
-        id="categories_sc",
+        id="child_categories_sc",
         width=2,
         height=3,
         hide_on_single_page=True,

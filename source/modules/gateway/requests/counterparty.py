@@ -5,16 +5,15 @@ from dataclasses import dataclass
 class CreateCounterpartyRequest:
     __slots__ = {"name", "inn", "categoryID"}
     name: str
-    inn: int
+    inn: str
     categoryID: int
 
 
 @dataclass
-class UpdateCounterPartyRequest:
-    counterpartyID: int
+class UpdateCounterpartyRequest:
     categoryID: int = None
     name: str = None
-    inn: int = None
+    inn: str = None
 
 
 @dataclass

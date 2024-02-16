@@ -14,7 +14,7 @@ async def on_start_delete(callback: CallbackQuery, button: Button, dialog_manage
 
 
 async def on_select_categories(event: CallbackQuery, select: ManagedMultiselect, dialog_manager: DialogManager,
-                               category: str):
+                               category_id: str):
     dialog_manager.dialog_data['selected_categories'] = select.get_checked()
     dialog_manager.dialog_data['are_selected'] = True if dialog_manager.dialog_data['selected_categories'] else False
 
@@ -26,11 +26,13 @@ async def on_save(callback: CallbackQuery, button: Button, dialog_manager: Dialo
 
     await api_c.delete(categories_id=del_categories_id)
 
-    categories_r = await api_c.get(parent_id=parent_id)
-    categories = await Tool.get_categories_frmt(categories_r.categories, "status")
+    categories = await api_c.get(parent_id=parent_id)
+    categories = await Tool.get_dict_categories(categories, "status")
 
     await callback.answer("✅ Категории удалены успешно.", show_alert=True)
     await dialog_manager.done()
-    await dialog_manager.update(data={'categories': categories}, show_mode=ShowMode.EDIT)
+
+    dialog_manager.dialog_data['d_categories'] = categories
+    await dialog_manager.show(show_mode=ShowMode.EDIT)
 
 

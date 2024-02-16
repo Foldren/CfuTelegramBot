@@ -1,7 +1,7 @@
 from aiogram.types import Message
 from aiogram_dialog import DialogManager, StartMode, ShowMode
 from aiogram_dialog.widgets.input import MessageInput
-from components.messages_responses import AuthorizationMessage
+from components.dataclasses import AuthorizationMessage
 from components.tools import Tool
 from modules.gateway.api import ApiGateway
 from modules.redis.models import User

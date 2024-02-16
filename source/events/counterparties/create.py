@@ -3,11 +3,11 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import DialogManager, ShowMode
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Select
-from components.callbacks_responses import GetCategoriesCallback
-from components.messages_responses import CreateCounterpartyMessage
+from components.dataclasses import CreateCounterpartyMessage, DialogCategory
+from components.decorators import get_wselect_item
 from components.tools import Tool
-from modules.gateway.responses.category import GetCategoriesResponse
 from modules.gateway.subclasses.category import ApiCategory
+from modules.gateway.subclasses.counterparty import ApiCounterparty
 
 
 async def on_write_params(message: Message, widget: MessageInput, dialog_manager: DialogManager):
@@ -15,30 +15,41 @@ async def on_write_params(message: Message, widget: MessageInput, dialog_manager
                                                                               dataclass_obj=CreateCounterpartyMessage)
 
     # Формируем начальный список категорий (главных) доступных для прикрепления
-    categories_r: GetCategoriesResponse = await ApiCategory(event=message).get(parent_id=None)
+    categories = await ApiCategory(event=message).get(parent_id=None)
 
-    await dialog_manager.update(data={
+    dialog_manager.dialog_data.update({
         "is_child_categories": False,
         'counterparty': {'inn': counterparty.inn, "name": counterparty.name},  # Сохраняем данные контрагента
-        'categories': await Tool.get_categories_frmt(categories_r.categories, "has_children")
-    }, show_mode=ShowMode.EDIT)
+        'd_categories': await Tool.get_dict_categories(categories, "has_children")
+    })
 
     await dialog_manager.next()
 
 
-async def on_get_child_categories(callback: CallbackQuery, widget: Select, dialog_manager: DialogManager, str_item: str):
-    category: GetCategoriesCallback = await Tool.callback_to_dataclass(callback, GetCategoriesCallback)
-
+@get_wselect_item(data_cls=DialogCategory, items_name='d_categories')
+async def on_get_child_categories(callback: CallbackQuery, widget: Select, dialog_manager: DialogManager,
+                                  selected_category: DialogCategory):
     # Создаем очередь категорий, записываем в нее id категорий
-    dialog_manager.dialog_data.setdefault("queue_categories_id", []).append(category.id)
+    dialog_manager.dialog_data.setdefault("queue_categories_id", []).append(selected_category.id)
 
-    categories_r: GetCategoriesResponse = await ApiCategory(event=callback).get(parent_id=category.id)
+    categories = await ApiCategory(event=callback).get(parent_id=selected_category.id)
 
-    await dialog_manager.update(data={
-        "is_child_categories": True,
-        'categories': await Tool.get_categories_frmt(categories_r.categories, "has_children")
-    })
-    await dialog_manager.show()
+    if selected_category.hasChildren == 1:
+        dialog_manager.dialog_data.update({
+            "is_child_categories": True,
+            'd_categories': await Tool.get_dict_categories(categories, "has_children")
+        })
+        await dialog_manager.show(show_mode=ShowMode.EDIT)
+    else:
+        await ApiCounterparty(event=callback).create(inn=dialog_manager.dialog_data['counterparty']['inn'],
+                                                     name=dialog_manager.dialog_data['counterparty']['name'],
+                                                     category_id=selected_category.id)
+
+        s_c_name = selected_category.name.replace("🔹 ", "")
+        await callback.answer(text=f"✅ Контрагент добавлен успешно. Категория - "
+                                   f"'{s_c_name}', прикреплена на распределение.",
+                              show_alert=True)
+        await dialog_manager.done()
 
 
 async def on_get_parent_categories(callback: CallbackQuery, widget: Any, dialog_manager: DialogManager):
@@ -51,7 +62,8 @@ async def on_get_parent_categories(callback: CallbackQuery, widget: Any, dialog_
 
     if main_menu:
         # Если главное меню чистим данные и меняем флаг дочерних категорий
-        dialog_manager.dialog_data.clear()
+        dialog_manager.dialog_data.pop("d_categories")
+        dialog_manager.dialog_data.pop("queue_categories_id")
         dialog_manager.dialog_data["is_child_categories"] = False
     else:
         dialog_manager.dialog_data["is_child_categories"] = True
@@ -62,9 +74,6 @@ async def on_get_parent_categories(callback: CallbackQuery, widget: Any, dialog_
     else:
         parent_category_id = None
 
-    categories_r: GetCategoriesResponse = await ApiCategory(event=callback).get(parent_id=parent_category_id)
-
-    await dialog_manager.update(data={
-        'categories': await Tool.get_categories_frmt(categories_r.categories, "has_children")
-    })
-    await dialog_manager.show()
+    categories = await ApiCategory(event=callback).get(parent_id=parent_category_id)
+    dialog_manager.dialog_data['d_categories'] = await Tool.get_dict_categories(categories, "has_children")
+    await dialog_manager.show(show_mode=ShowMode.EDIT)

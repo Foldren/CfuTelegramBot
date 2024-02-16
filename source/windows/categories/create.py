@@ -3,7 +3,6 @@ from aiogram_dialog import Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Cancel
 from aiogram_dialog.widgets.text import Const, Multi
-
 from events.categories.create import on_select_name
 from states.categories import CreateCategoryStates
 

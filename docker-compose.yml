@@ -1,13 +1,38 @@
 version: "3.3"
 services:
-  telegram_bot:
+  platform_upravlyaika_bot:
     build: .
-    image: telegram_bot
-    container_name: telegram_bot
+    container_name: platform_upravlyaika_bot
+    restart: always
     environment:
       - TZ=Europe/Moscow
+    env_file:
+      - ./source/.env
+    depends_on:
+      - platform_upravlyaika_cache
+    networks:
+      - cfu-uprav_platfrorm-bot
+
+  platform_upravlyaika_cache:
+    image: redis:alpine
+    container_name: platform_upravlyaika_cache
+    restart: always
+    ports:
+      - 11229:6379
+    command: redis-server --requirepass ${RS_PASSWORD}
+    networks:
+      - cfu-uprav_platfrorm-bot
     volumes:
-      - /home/user/.volumes/telegram_bot/source:/source:rw
-    tty: true
-    working_dir: /source
-    command: ["python", "bot.py"]
+      - cache:/data
+
+volumes:
+  cache:
+    driver: local
+    driver_opts:
+      type: none
+      device: ~/.databases/uprav_platfrorm_redis
+      o: bind
+
+# networks
+networks:
+  cfu-uprav_platfrorm-bot:

@@ -4,18 +4,19 @@ from modules.gateway.requests.category import GetCategoriesRequest, CreateCatego
     DeleteCategoriesRequest
 from modules.gateway.responses.category import GetCategoriesResponse, CreateCategoryResponse, UpdateCategoryResponse, \
     DeleteCategoriesResponse
+from modules.gateway.responses.children import DCategory
 
 
 class ApiCategory(ApiGateway):
-    async def get(self, parent_id: int = None) -> GetCategoriesResponse:
-        rpc_response = await super()._request(
+    async def get(self, parent_id: int = None) -> list[DCategory]:
+        rpc_response: GetCategoriesResponse = await super()._request(
             method="get",
             url="/categories",
             request_obj=GetCategoriesRequest(parentID=parent_id),
             response_obj=GetCategoriesResponse
         )
 
-        return rpc_response
+        return rpc_response.categories
 
     async def create(self, name: str, parent_id: int = None) -> CreateCategoryResponse:
         rpc_response = await super()._request(

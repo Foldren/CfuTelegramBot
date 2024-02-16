@@ -9,6 +9,7 @@ from events.counterparties.create import on_get_parent_categories, on_get_child_
 from getters.counterparties import get_attach_categories
 from states.counterparties import CreateCounterpartyStates
 
+
 write_params = Window(
     Multi(
         Const(Text.title("Создание контрагента", 1, True)),
@@ -37,11 +38,11 @@ select_attach_category = Window(
     ),
     ScrollingGroup(
         Select(
-            text=Format("{item[1]}"),
+            text=Format("{item[name]}"),
             items='categories',
-            item_id_getter=lambda item: f"{item[0]}:{item[1]}",
+            item_id_getter=lambda item: item['id'],
             on_click=on_get_child_categories,
-            id="categories_s"
+            id="attach_category"
         ),
         id="categories_sc",
         width=2,

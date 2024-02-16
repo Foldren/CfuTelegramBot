@@ -20,7 +20,7 @@ class DCategory(DataClassJsonMixin):
     id: int
     name: str
     status: int
-    hasChildren: bool
+    hasChildren: int
 
 
 @dataclass

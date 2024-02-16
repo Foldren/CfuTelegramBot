@@ -2,7 +2,7 @@ from aiogram import F
 from aiogram_dialog import Window
 from aiogram_dialog.widgets.kbd import Cancel, ScrollingGroup, Row, Multiselect, Button
 from aiogram_dialog.widgets.text import Const, Multi, Format
-from events.categories.delete import on_select_categories, on_save
+from events.counterparties.delete import on_select_counterparties, on_save
 from getters.counterparties import get_counterparties
 from states.counterparties import DeleteCounterpartiesStates
 
@@ -20,12 +20,12 @@ select_counterparties = Window(
     ),
     ScrollingGroup(
         Multiselect(
-            checked_text=Format("☑️ {item[2]}{item[1]}"),
-            unchecked_text=Format("{item[2]}{item[1]}"),
+            checked_text=Format("☑️ {item[inn]} - {item[name]}"),
+            unchecked_text=Format("{item[inn]} - {item[name]}"),
             items='counterparties',
-            item_id_getter=lambda i: str(i[0]),
-            on_state_changed=on_select_categories,
-            id="counterparties_s"
+            item_id_getter=lambda item: item['id'],  # 0 - id контрагента, 1 - ИНН контрагента, 2 - наименование
+            on_state_changed=on_select_counterparties,
+            id="selected_counterparty"
         ),
         id="counterparties_sc",
         width=1,

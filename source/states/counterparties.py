@@ -13,8 +13,9 @@ class CreateCounterpartyStates(StatesGroup):
 class UpdateCounterpartyStates(StatesGroup):
     select_counterparty = State()
     select_param = State()
-    write_params = State()
-    select_category = State()
+    update_inn = State()
+    update_name = State()
+    attach_new_category = State()
 
 
 class DeleteCounterpartiesStates(StatesGroup):

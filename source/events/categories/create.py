@@ -18,14 +18,17 @@ async def on_select_name(message: Message, widget: MessageInput, dialog_manager:
     api_c = ApiCategory(event=message)
 
     # Создаем категорию
-    await ApiCategory(event=message).create(parent_id=item_id, name=message.text)
+    await api_c.create(parent_id=item_id, name=message.text)
 
     # Получаем новый список категорий
-    categories_r = await api_c.get(parent_id=item_id)
+    categories = await api_c.get(parent_id=item_id)
 
     await message.answer("Категория успешно добавлена в систему ✅")
     await dialog_manager.done()
-    await dialog_manager.update(data={
-        'categories': await Tool.get_categories_frmt(categories_r.categories, "status"),
+
+    dialog_manager.dialog_data.update({
+        'd_categories': await Tool.get_dict_categories(categories, "status"),
         "there_are_categories": True,
-    }, show_mode=ShowMode.EDIT)
+    })
+
+    await dialog_manager.show(show_mode=ShowMode.EDIT)

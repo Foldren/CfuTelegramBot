@@ -5,9 +5,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import DialogManager
 from httpx import Response
+from components.dataclasses import DialogCategory, DialogCounterparty
 from components.text import Text
-from modules.gateway.responses.category import GetCategoriesResponse
-from modules.gateway.responses.children import DCategory
+from modules.gateway.responses.children import DCategory, DCounterparty
 from modules.gateway.responses.rpc import RpcResponse, RpcExceptionResponse
 
 
@@ -24,19 +24,42 @@ class Tool:
         return dialog_data['queue'][-1]['id'] if 'queue' in dialog_data else None
 
     @staticmethod
-    async def get_categories_frmt(categories: list[DCategory],
-                                  extended_option: str = None):
-        match extended_option:
-            case "status":
-                result_list = [(c.id, c.name if c.status == 1 else f"💤 {c.name}", c.status, c.hasChildren)
-                               for c in categories]
-            case "has_children":
-                result_list = [(c.id, c.name if c.hasChildren else f"🔹 {c.name}", c.status, c.hasChildren)
-                               for c in categories]
-            case _:
-                result_list = [(c.id, c.name, c.status, c.hasChildren) for c in categories]
+    async def get_dict_categories(categories: list[DCategory], extended_option: str = None):
+        result = []
+        for c in categories:
+            match extended_option:
+                case "status":
+                    c_name = f"💤 {c.name}" if int(c.status) == 0 else c.name
+                case "has_children":
+                    c_name = f"🔹 {c.name}" if int(c.hasChildren) == 0 else c.name
+                case _:
+                    c_name = c.name
+            d_category = DialogCategory(id=c.id, name=c_name, status=c.status, hasChildren=int(c.hasChildren))
+            result.append(DialogCategory.to_dict(d_category))
 
-        return result_list
+        return result
+
+    @staticmethod
+    async def get_dict_counterparties(counterparties: list[DCounterparty]):
+        result = []
+        for c in counterparties:
+            d_category = DialogCounterparty(id=c.id, inn=c.inn, name=c.name, categoryID=c.categoryID,
+                                            categoryName=c.categoryName)
+            result.append(DialogCounterparty.to_dict(d_category))
+
+        return result
+
+    @staticmethod
+    async def get_item_from_dict(items: list[dict], param: str, value: Any, dataclass_obj: dataclass):
+        double_obj = dataclass_obj
+        for item in items:
+            if item[param] == value:
+                cls_fields = fields(double_obj)
+                for field in cls_fields:
+                    if field.name != "data":
+                        setattr(double_obj, field.name, field.type(item[field.name]))
+
+                return double_obj
 
     @staticmethod
     async def handle_exceptions(response: Response, event: Union[Message, CallbackQuery],

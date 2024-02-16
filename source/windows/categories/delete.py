@@ -22,12 +22,12 @@ select_categories = Window(
     ),
     ScrollingGroup(
         Multiselect(
-            checked_text=Format("☑️ {item[1]}"),
-            unchecked_text=Format("{item[1]}"),
+            checked_text=Format("☑️ {item[name]}"),
+            unchecked_text=Format("{item[name]}"),
             items='categories',
-            item_id_getter=lambda item: f"{item[0]}",  # 0 - id
+            item_id_getter=lambda item: item['id'],
             on_state_changed=on_select_categories,
-            id="categories_s"
+            id="delete_category"
         ),
         id="categories_sc",
         width=2,

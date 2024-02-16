@@ -6,7 +6,7 @@ from modules.gateway.subclasses.counterparty import ApiCounterparty
 
 
 async def on_select_counterparties(event: CallbackQuery, select: ManagedMultiselect, dialog_manager: DialogManager,
-                                   counterparty: str):
+                                   counterparty_id: str):
     dialog_manager.dialog_data['selected_counterparties'] = select.get_checked()
     dialog_manager.dialog_data['are_selected'] = True if dialog_manager.dialog_data['selected_counterparties'] \
         else False
