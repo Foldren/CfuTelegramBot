@@ -11,7 +11,7 @@ services:
     depends_on:
       - platform_upravlyaika_cache
     networks:
-      - cfu-uprav_platfrorm-bot
+      - cfu-uprav-platfrorm-bot
 
   platform_upravlyaika_cache:
     image: redis:alpine
@@ -21,7 +21,7 @@ services:
       - 11229:6379
     command: redis-server --requirepass ${RS_PASSWORD}
     networks:
-      - cfu-uprav_platfrorm-bot
+      - cfu-uprav-platfrorm-bot
     volumes:
       - cache:/data
 
@@ -35,4 +35,4 @@ volumes:
 
 # networks
 networks:
-  cfu-uprav_platfrorm-bot:
+  cfu-uprav-platfrorm-bot:
