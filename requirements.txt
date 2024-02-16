@@ -8,3 +8,4 @@ aiogram-dialog==2.2.0a3
 dataclasses-json==0.6.3
 PyJWT==2.8.0
 aiogram==3.3.0
+redis-om==0.2.1
