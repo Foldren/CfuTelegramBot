@@ -1,4 +1,4 @@
-aiogram
+aiogram~=3.3.0
 tortoise-orm
 tortoise-orm[asyncmy]
 aerich
