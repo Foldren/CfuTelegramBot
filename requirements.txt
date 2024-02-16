@@ -1,3 +1,4 @@
+pydantic~=2.5.3
 aiogram~=3.2.0
 aerich~=0.7.2
 cryptography~=41.0.7
@@ -9,4 +10,3 @@ aiogram-dialog~=2.2.0a3
 dataclasses-json~=0.6.3
 PyJWT~=2.8.0
 redis-om~=0.2.1
-pydantic~=2.5.3
