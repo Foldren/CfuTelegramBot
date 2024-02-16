@@ -11,4 +11,4 @@ aiogram-dialog
 dataclasses-json
 PyJWT
 redis-om
-pydantic~=2.0.0
+pydantic~=2.6.0b1
