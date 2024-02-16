@@ -27,11 +27,6 @@ services:
 
 volumes:
   cache:
-    driver: local
-    driver_opts:
-      type: none
-      device: ~/.databases/uprav_platfrorm_redis
-      o: bind
 
 # networks
 networks:
