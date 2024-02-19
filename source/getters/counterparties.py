@@ -3,8 +3,8 @@ from modules.gateway.subclasses.counterparty import ApiCounterparty
 
 
 async def get_counterparties(**kwargs):
-    callback = kwargs['dialog_manager'].event
-    counterparties = await ApiCounterparty(event=callback).get()
+    dialog_manager = kwargs['dialog_manager']
+    counterparties = await ApiCounterparty(dm=dialog_manager).get()
     dict_counterparties = await Tool.get_dict_counterparties(counterparties)
 
     # Сохраняем контрагентов

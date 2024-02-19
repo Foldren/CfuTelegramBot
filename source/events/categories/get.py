@@ -23,7 +23,7 @@ async def on_get_children(callback: CallbackQuery, widget: Select, dialog_manage
         dialog_manager.dialog_data['queue'].pop()
         return
 
-    categories = await ApiCategory(event=callback).get(parent_id=selected_category.id)
+    categories = await ApiCategory(dm=dialog_manager).get(parent_id=selected_category.id)
     dict_categories = await Tool.get_dict_categories(categories, "status")
 
     dialog_manager.dialog_data.update({
@@ -54,7 +54,7 @@ async def on_get_parents(callback: CallbackQuery, button: Button, dialog_manager
         await dialog_manager.switch_to(GetCategoriesStates.render_main)
     else:
         # Если не главное меню берем id последнего элемента очереди как parent_id
-        categories = await ApiCategory(event=callback).get(parent_id=queue[-1]['id'])
+        categories = await ApiCategory(dm=dialog_manager).get(parent_id=queue[-1]['id'])
 
         dialog_manager.dialog_data.update({
             "queue": queue,

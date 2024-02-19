@@ -28,7 +28,7 @@ async def on_select_category(callback: CallbackQuery, widget: Select, dialog_man
 async def on_update_status(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager):
     category = DialogCategory.from_dict(dialog_manager.dialog_data['selected_category'])
     status = False if widget.widget_id == "cs_active" else True
-    api_c = ApiCategory(event=callback)
+    api_c = ApiCategory(dm=dialog_manager)
     name_c = dialog_manager.dialog_data['selected_category']['name'].replace("💤 ", "")
 
     # Обновляем статус
@@ -41,7 +41,7 @@ async def on_update_status(callback: CallbackQuery, widget: Button, dialog_manag
 
 async def on_update_name(message: Message, widget: MessageInput, dialog_manager: DialogManager):
     category = DialogCategory.from_dict(dialog_manager.dialog_data['selected_category'])
-    api_c = ApiCategory(event=message)
+    api_c = ApiCategory(dm=dialog_manager)
     parent_id = dialog_manager.start_data['parent_id']
     new_c_name = message.text
 
@@ -58,7 +58,7 @@ async def on_update_name(message: Message, widget: MessageInput, dialog_manager:
 
 
 async def on_back_to_categories(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager):
-    categories = await ApiCategory(event=callback).get(parent_id=dialog_manager.start_data['parent_id'])
+    categories = await ApiCategory(dm=dialog_manager).get(parent_id=dialog_manager.start_data['parent_id'])
     await dialog_manager.done()
     dialog_manager.dialog_data['d_categories'] = await Tool.get_dict_categories(categories, "status")
     await dialog_manager.show(show_mode=ShowMode.EDIT)

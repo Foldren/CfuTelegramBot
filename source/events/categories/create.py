@@ -15,7 +15,7 @@ async def on_start_create(callback: CallbackQuery, button: Button, dialog_manage
 
 async def on_select_name(message: Message, widget: MessageInput, dialog_manager: DialogManager):
     item_id = dialog_manager.start_data['parent_id']
-    api_c = ApiCategory(event=message)
+    api_c = ApiCategory(dm=dialog_manager)
 
     # Создаем категорию
     await api_c.create(parent_id=item_id, name=message.text)

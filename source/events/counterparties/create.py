@@ -15,7 +15,7 @@ async def on_write_params(message: Message, widget: MessageInput, dialog_manager
                                                                               dataclass_obj=CreateCounterpartyMessage)
 
     # Формируем начальный список категорий (главных) доступных для прикрепления
-    categories = await ApiCategory(event=message).get(parent_id=None)
+    categories = await ApiCategory(dm=dialog_manager).get(parent_id=None)
 
     dialog_manager.dialog_data.update({
         "is_child_categories": False,
@@ -32,7 +32,7 @@ async def on_get_child_categories(callback: CallbackQuery, widget: Select, dialo
     # Создаем очередь категорий, записываем в нее id категорий
     dialog_manager.dialog_data.setdefault("queue_categories_id", []).append(selected_category.id)
 
-    categories = await ApiCategory(event=callback).get(parent_id=selected_category.id)
+    categories = await ApiCategory(dm=dialog_manager).get(parent_id=selected_category.id)
 
     if selected_category.hasChildren == 1:
         dialog_manager.dialog_data.update({
@@ -41,7 +41,7 @@ async def on_get_child_categories(callback: CallbackQuery, widget: Select, dialo
         })
         await dialog_manager.show(show_mode=ShowMode.EDIT)
     else:
-        await ApiCounterparty(event=callback).create(inn=dialog_manager.dialog_data['counterparty']['inn'],
+        await ApiCounterparty(dm=dialog_manager).create(inn=dialog_manager.dialog_data['counterparty']['inn'],
                                                      name=dialog_manager.dialog_data['counterparty']['name'],
                                                      category_id=selected_category.id)
 
@@ -74,6 +74,6 @@ async def on_get_parent_categories(callback: CallbackQuery, widget: Any, dialog_
     else:
         parent_category_id = None
 
-    categories = await ApiCategory(event=callback).get(parent_id=parent_category_id)
+    categories = await ApiCategory(dm=dialog_manager).get(parent_id=parent_category_id)
     dialog_manager.dialog_data['d_categories'] = await Tool.get_dict_categories(categories, "has_children")
     await dialog_manager.show(show_mode=ShowMode.EDIT)

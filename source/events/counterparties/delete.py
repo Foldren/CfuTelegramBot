@@ -15,6 +15,6 @@ async def on_select_counterparties(event: CallbackQuery, select: ManagedMultisel
 async def on_save(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     del_counterparties_id = [int(x) for x in dialog_manager.dialog_data['selected_counterparties']]
 
-    await ApiCounterparty(event=callback).delete(counterparties_id=del_counterparties_id)
+    await ApiCounterparty(dm=dialog_manager).delete(counterparties_id=del_counterparties_id)
     await callback.answer("✅ Контрагенты удалены успешно.", show_alert=True)
     await dialog_manager.done()

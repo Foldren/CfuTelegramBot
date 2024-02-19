@@ -21,7 +21,7 @@ async def on_select_categories(event: CallbackQuery, select: ManagedMultiselect,
 
 async def on_save(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     del_categories_id = [int(x) for x in dialog_manager.dialog_data['selected_categories']]
-    api_c = ApiCategory(event=callback)
+    api_c = ApiCategory(dm=dialog_manager)
     parent_id = dialog_manager.start_data['parent_id']
 
     await api_c.delete(categories_id=del_categories_id)

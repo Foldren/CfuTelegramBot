@@ -1,12 +1,13 @@
 from dataclasses import asdict, dataclass
-from typing import Union, Any
+from typing import Any
 import jwt
-from aiogram.types import Message, CallbackQuery
+from aiogram_dialog import DialogManager
 from httpx import AsyncClient
 from jwt import ExpiredSignatureError
 from components.tools import Tool
 from modules.gateway.responses.auth import SignInResponse, RefreshResponse
 from modules.redis.models import User
+from modules.redis.redis_om import RedisOM
 from source.config import GATEWAY_PATH, JWT_SECRET, UA_TELEGRAM
 from source.modules.gateway.requests.auth import SignInRequest
 
@@ -14,19 +15,20 @@ from source.modules.gateway.requests.auth import SignInRequest
 class ApiGateway:
     main_path: str = GATEWAY_PATH
     headers = {"User-Agent": UA_TELEGRAM}
-    event: Union[Message, CallbackQuery]
+    dm: DialogManager
 
-    def __init__(self, event: Union[Message, CallbackQuery]):
+    def __init__(self, dm: DialogManager):
         """
         При инициализации передаем event
-        :param event: объект колбека или сообщения
+        :param dm: объект dialog_manager
         """
-        self.event = event
+        self.dm = dm
 
     async def __refresh(self):
-        chat_id = await Tool.get_chat_id(self.event)
-        message = await self.event.bot.send_message(chat_id, "Обновление данных авторизации 🔄")
-        user = await User.find(User.chat_id == chat_id).first()
+        chat_id = await Tool.get_chat_id(self.dm.event)
+        message = await self.dm.event.bot.send_message(chat_id, "Обновление данных авторизации 🔄")
+        redis_conn: RedisOM = self.dm.middleware_data['redis']
+        user: User = await redis_conn.get(User, pk=chat_id)
 
         self.headers.pop('Authorization')
 
@@ -37,7 +39,7 @@ class ApiGateway:
                 cookies=user.cookies
             )
 
-            refresh_response = await Tool.handle_exceptions(response_token, self.event, RefreshResponse)
+            refresh_response = await Tool.handle_exceptions(response_token, self.dm.event, RefreshResponse)
 
             # Обновляем access_token
             access_token = refresh_response.accessToken
@@ -45,15 +47,16 @@ class ApiGateway:
 
             user.accessToken = access_token
             user.cookies = {'refresh': response_token.cookies['refresh']}
-            await user.save()
+            await redis_conn.save(user)
 
         await message.delete()
 
     async def _request(self, method: str, url: str, response_obj, request_obj: dataclass = None,
                        data_in_url: bool = False) -> Any:
         # Прикрепляем текущий токен
-        chat_id = await Tool.get_chat_id(event=self.event)
-        user = await User.find(User.chat_id == chat_id).first()
+        chat_id = await Tool.get_chat_id(event=self.dm.event)
+        redis_conn: RedisOM = self.dm.middleware_data['redis']
+        user: User = await redis_conn.get(User, pk=chat_id)
 
         try:
             # Преобразуем объект данных в dict, удаляем пустые значения
@@ -93,16 +96,9 @@ class ApiGateway:
                 )
 
             # Проверяем на ошибки
-            rpc_response = await Tool.handle_exceptions(response, self.event, response_obj)
+            rpc_response = await Tool.handle_exceptions(response, self.dm.event, response_obj)
 
         return rpc_response
-
-    @staticmethod
-    async def _get_user_id(chat_id: int):
-        user = await User.find(User.chat_id == chat_id).first()
-        user_data = jwt.decode(user.accessToken, JWT_SECRET, algorithms=["HS256"], options={"verify_signature": False})
-
-        return user_data['id']
 
     async def auth(self, email: str, password: str) -> SignInResponse:
         async with AsyncClient(verify=False) as async_session:
@@ -112,17 +108,20 @@ class ApiGateway:
                 json=asdict(SignInRequest(email, password)),
             )
 
-        rpc_response = await Tool.handle_exceptions(response, self.event, SignInResponse)
+        rpc_response = await Tool.handle_exceptions(response, self.dm.event, SignInResponse)
 
         # Сохраняем токен
         self.headers['Authorization'] = 'Bearer ' + rpc_response.accessToken
 
         # Записываем данные
-        await User(
-            chat_id=self.event.chat.id,
-            accessToken=rpc_response.accessToken,
-            role=rpc_response.user.role,
-            cookies=response.cookies
-        ).save()
+        redis_conn: RedisOM = self.dm.middleware_data['redis']
+
+        user = User(pk=self.dm.event.chat.id,
+                    accessToken=rpc_response.accessToken,
+                    role=rpc_response.user.role,
+                    cookies={'refresh': response.cookies['refresh']}
+                    )
+
+        await redis_conn.save(user)
 
         return rpc_response

@@ -4,13 +4,12 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from aiogram_dialog import setup_dialogs
-from aredis_om import Migrator
 from redis.asyncio import from_url
 from components.dialogs import authorization, change_menu, get_categories, get_counterparties, create_category, \
     update_category, delete_categories, create_counterparty, delete_counterparties, update_counterparty
 from config import TOKEN, REDIS_OM_URL
 from components import handlers
-
+from modules.redis.redis_om import RedisOM
 
 admin_dialogs = [
     authorization, change_menu,
@@ -30,10 +29,11 @@ async def main():
     dp.include_routers(handlers.rt, *admin_dialogs)
     setup_dialogs(dp)
 
+    redis_om = RedisOM(db=0, url=REDIS_OM_URL)
+
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot, allowed_updates=["message", "callback_query", "my_chat_member"])
+    await dp.start_polling(bot, redis=redis_om, allowed_updates=["message", "callback_query", "my_chat_member"])
 
 
 if __name__ == "__main__":
     run(main())
-    run(Migrator().run())

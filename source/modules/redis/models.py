@@ -1,8 +1,10 @@
-from aredis_om import Field, JsonModel
+from dataclasses import dataclass
+from dataclasses_json import DataClassJsonMixin
 
 
-class User(JsonModel):
-    chat_id: int = Field(index=True)
+@dataclass
+class User(DataClassJsonMixin):
+    pk: int  # chat_id
     role: str
     accessToken: str
     cookies: dict
