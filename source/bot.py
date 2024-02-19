@@ -29,7 +29,7 @@ async def main():
     dp.include_routers(handlers.rt, *admin_dialogs)
     setup_dialogs(dp)
 
-    redis_om = RedisOM(db=0, url=REDIS_OM_URL)
+    redis_om = RedisOM(db=0, url=REDIS_OM_URL)  # В 0 db модели redis
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, redis=redis_om, allowed_updates=["message", "callback_query", "my_chat_member"])
