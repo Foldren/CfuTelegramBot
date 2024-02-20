@@ -39,7 +39,7 @@ class ApiGateway:
                 cookies=user.cookies
             )
 
-            refresh_response = await Tool.handle_exceptions(response_token, self.dm.event, RefreshResponse)
+            refresh_response = await Tool.handle_exceptions(response_token, self.dm, RefreshResponse)
 
             # Обновляем access_token
             access_token = refresh_response.accessToken
@@ -96,7 +96,7 @@ class ApiGateway:
                 )
 
             # Проверяем на ошибки
-            rpc_response = await Tool.handle_exceptions(response, self.dm.event, response_obj)
+            rpc_response = await Tool.handle_exceptions(response, self.dm, response_obj)
 
         return rpc_response
 
@@ -108,7 +108,7 @@ class ApiGateway:
                 json=asdict(SignInRequest(email, password)),
             )
 
-        rpc_response = await Tool.handle_exceptions(response, self.dm.event, SignInResponse)
+        rpc_response = await Tool.handle_exceptions(response, self.dm, SignInResponse)
 
         # Сохраняем токен
         self.headers['Authorization'] = 'Bearer ' + rpc_response.accessToken

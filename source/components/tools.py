@@ -3,12 +3,13 @@ from typing import Union, Any
 from aiogram.dispatcher.event.bases import CancelHandler
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
-from aiogram_dialog import DialogManager
+from aiogram_dialog import DialogManager, StartMode
 from httpx import Response
 from components.dataclasses import DialogCategory, DialogCounterparty
 from components.text import Text
 from modules.gateway.responses.children import DCategory, DCounterparty
 from modules.gateway.responses.rpc import RpcResponse, RpcExceptionResponse
+from states.authorization import AuthorizationStates
 
 
 class Tool:
@@ -62,11 +63,11 @@ class Tool:
                 return double_obj
 
     @staticmethod
-    async def handle_exceptions(response: Response, event: Union[Message, CallbackQuery],
+    async def handle_exceptions(response: Response, dm: DialogManager,
                                 response_type: dataclass) -> Any:
         title = Text.title('Ошибка')
         msg_text = "\n⛔ "
-        chat_id = await Tool.get_chat_id(event)
+        chat_id = await Tool.get_chat_id(dm.event)
 
         try:
             rpc_response = RpcResponse.from_dict(response.json())
@@ -77,8 +78,11 @@ class Tool:
         if hasattr(rpc_response, "data"):
             if hasattr(rpc_response, "error"):
                 if rpc_response.error is not None:
-                    await event.bot.send_message(chat_id=chat_id, text=title + msg_text + rpc_response.error.message)
-                    raise CancelHandler
+                    await dm.event.bot.send_message(chat_id=chat_id, text=title + msg_text + rpc_response.error.message)
+                    # Если неверный логин пароль, начинаем диалог с авторизацией
+                    if rpc_response.error.statusCode == 401:
+                        await dm.start(state=AuthorizationStates.start, mode=StartMode.RESET_STACK)
+                    raise CancelHandler(rpc_response.error.message)
                 else:
                     return response_type.from_dict(rpc_response.data)
             else:
@@ -86,7 +90,7 @@ class Tool:
         else:
             for row in rpc_response.message:
                 msg_text += row + ". "
-            await event.bot.send_message(chat_id=chat_id, text=title + msg_text)
+            await dm.event.bot.send_message(chat_id=chat_id, text=title + msg_text)
             raise CancelHandler
 
     @staticmethod
