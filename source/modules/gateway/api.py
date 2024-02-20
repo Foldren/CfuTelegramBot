@@ -5,11 +5,11 @@ from aiogram_dialog import DialogManager
 from httpx import AsyncClient
 from jwt import ExpiredSignatureError
 from components.tools import Tool
+from config import GATEWAY_PATH, JWT_SECRET, UA_TELEGRAM
+from modules.gateway.requests.auth import SignInRequest
 from modules.gateway.responses.auth import SignInResponse, RefreshResponse
 from modules.redis.models import User
 from modules.redis.redis_om import RedisOM
-from config import GATEWAY_PATH, JWT_SECRET, UA_TELEGRAM
-from modules.gateway.requests.auth import SignInRequest
 
 
 class ApiGateway:

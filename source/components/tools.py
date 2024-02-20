@@ -9,6 +9,8 @@ from components.dataclasses import DialogCategory, DialogCounterparty
 from components.text import Text
 from modules.gateway.responses.children import DCategory, DCounterparty
 from modules.gateway.responses.rpc import RpcResponse, RpcExceptionResponse
+from modules.redis.models import User
+from modules.redis.redis_om import RedisOM
 from states.authorization import AuthorizationStates
 
 
@@ -81,6 +83,8 @@ class Tool:
                     await dm.event.bot.send_message(chat_id=chat_id, text=title + msg_text + rpc_response.error.message)
                     # Если неверный логин пароль, начинаем диалог с авторизацией
                     if rpc_response.error.statusCode == 401:
+                        redis_conn: RedisOM = dm.middleware_data['redis']
+                        await redis_conn.delete(User, pk=chat_id)
                         await dm.start(state=AuthorizationStates.start, mode=StartMode.RESET_STACK)
                     raise CancelHandler(rpc_response.error.message)
                 else:

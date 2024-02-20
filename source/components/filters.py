@@ -14,9 +14,12 @@ class IsNotAuthorizedFilter(BaseFilter):
 
 
 class IsAuthorizedFilter(BaseFilter):
+
     async def __call__(self, message: Message, redis: RedisOM) -> bool:
         try:
             await redis.get(User, pk=message.from_user.id)
             return True
         except:
             return False
+
+
