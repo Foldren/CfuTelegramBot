@@ -8,11 +8,11 @@ from modules.gateway.responses.children import DCategory
 
 
 class ApiCategory(ApiGateway):
-    async def get(self, parent_id: int = None) -> list[DCategory]:
+    async def get(self, parent_id: int = None, include_static=False) -> list[DCategory]:
         rpc_response: GetCategoriesResponse = await super()._request(
             method="get",
             url="/categories",
-            request_obj=GetCategoriesRequest(parentID=parent_id),
+            request_obj=GetCategoriesRequest(parentID=parent_id, includeStatic=include_static),
             response_obj=GetCategoriesResponse
         )
 

@@ -2,6 +2,11 @@ from dataclasses import dataclass
 
 
 @dataclass
+class GetCounterpartiesRequest:
+    showMode: str = 'distributed'
+
+
+@dataclass
 class CreateCounterpartyRequest:
     __slots__ = {"name", "inn", "categoryID"}
     name: str

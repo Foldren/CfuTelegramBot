@@ -4,6 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class GetCategoriesRequest:
     parentID: int = None
+    includeStatic: bool = None
 
 
 @dataclass

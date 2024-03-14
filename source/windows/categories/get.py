@@ -34,6 +34,7 @@ main_categories = Window(
         Button(id="delete_categories", text=Const("🗑"), on_click=on_start_delete, when=F['there_are_categories']),
         Cancel(text=Const("⛔️"))
     ),
+    Button(text=Const("Нет ни одной категории"), id="no_categories", when=~F['there_are_categories']),
     ScrollingGroup(
         Select(
             text=Format("{item[name]}"),  # Показываем название вместе со статусом
@@ -45,7 +46,7 @@ main_categories = Window(
         id="main_categories_sc",
         width=2,
         height=3,
-        hide_on_single_page=True,
+        hide_on_single_page=True
     ),
     state=GetCategoriesStates.render_main,
     getter=get_main_ones
@@ -66,6 +67,7 @@ child_categories = Window(
                when=F['there_are_categories']),
         Cancel(text=Const("⛔️"))
     ),
+    Button(text=Const("Нет вложенных категории"), id="no_categories", when=~F['there_are_categories']),
     ScrollingGroup(
         Select(
             text=Format("{item[name]}"),  # Показываем название вместе со статусом

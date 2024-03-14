@@ -12,7 +12,7 @@ rt = Router()
 rt.message.filter(F.chat.type == "private")
 
 
-@rt.message(F.text.in_({"/start"}), IsAuthorizedFilter())
+@rt.message(F.text == "/start", IsAuthorizedFilter())
 async def restart(message: Message, dialog_manager: DialogManager):
     try:
         await ApiCategory(dm=dialog_manager).get()
@@ -22,7 +22,7 @@ async def restart(message: Message, dialog_manager: DialogManager):
         pass
 
 
-@rt.message(F.text.in_({"/start"}), IsNotAuthorizedFilter())
+@rt.message(F.text == "/start", IsNotAuthorizedFilter())
 async def authorization(message: Message, dialog_manager: DialogManager):
     await message.bot.set_my_commands(commands=commands, scope=BotCommandScopeAllPrivateChats())
     await dialog_manager.start(state=AuthorizationStates.start, mode=StartMode.RESET_STACK)

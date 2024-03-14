@@ -1,17 +1,18 @@
 from components.tools import Tool
 from modules.gateway.api import ApiGateway
 from modules.gateway.requests.counterparty import CreateCounterpartyRequest, DeleteCounterpartiesRequest, \
-    UpdateCounterpartyRequest
+    UpdateCounterpartyRequest, GetCounterpartiesRequest
 from modules.gateway.responses.children import DCounterparty
 from modules.gateway.responses.counterparty import GetCounterpartiesResponse, CreateCounterpartyResponse, \
     DeleteCounterpartiesResponse, UpdateCounterpartyResponse
 
 
 class ApiCounterparty(ApiGateway):
-    async def get(self) -> list[DCounterparty]:
+    async def get(self, show_mode: str = 'distributed') -> list[DCounterparty]:
         rpc_response: GetCounterpartiesResponse = await self._request(
             method="get",
             url="/counterparties",
+            request_obj=GetCounterpartiesRequest(showMode=show_mode),
             response_obj=GetCounterpartiesResponse
         )
 

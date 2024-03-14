@@ -1,5 +1,4 @@
 from typing import Any
-
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, ShowMode
 from aiogram_dialog.widgets.input import MessageInput
@@ -16,7 +15,7 @@ from states.counterparties import UpdateCounterpartyStates
 async def on_select_counterparty(callback: CallbackQuery, widget: Select, dialog_manager: DialogManager,
                                  selected_counterparty: DialogCounterparty):
     dialog_manager.dialog_data['selected_counterparty'] = DialogCounterparty.to_dict(selected_counterparty)
-    categories = await ApiCategory(dm=dialog_manager).get()
+    categories = await ApiCategory(dm=dialog_manager).get(include_static=True)
     dialog_manager.dialog_data.update({
         'd_categories': await Tool.get_dict_categories(categories, extended_option="has_children"),
         'is_child_categories': False
@@ -73,7 +72,7 @@ async def on_get_child_categories(callback: CallbackQuery, widget: Select, dialo
     # Создаем очередь категорий, записываем в нее id категорий
     dialog_manager.dialog_data.setdefault("queue_categories_id", []).append(selected_category.id)
 
-    categories = await ApiCategory(dm=dialog_manager).get(parent_id=selected_category.id)
+    categories = await ApiCategory(dm=dialog_manager).get(parent_id=selected_category.id, include_static=True)
 
     if selected_category.hasChildren == 1:
         dialog_manager.dialog_data.update({
@@ -84,11 +83,11 @@ async def on_get_child_categories(callback: CallbackQuery, widget: Select, dialo
     else:
         selected_counterparty = DialogCounterparty.from_dict(dialog_manager.dialog_data['selected_counterparty'])
         await ApiCounterparty(dm=dialog_manager).update(counterparty_id=selected_counterparty.id,
-                                                     category_id=selected_category.id)
+                                                        category_id=selected_category.id)
 
         s_c_name = selected_category.name.replace("🔹 ", "")
-        await callback.answer(text=f"✅ К контрагенту прикреплена новая категория на распределение - "
-                                   f"'{s_c_name}'",
+        await callback.answer(text=f"✅ К контрагенту '{selected_counterparty.name}' "
+                                   f"прикреплена категория на распределение - '{s_c_name}'",
                               show_alert=True)
 
         dialog_manager.dialog_data['selected_counterparty']['categoryName'] = s_c_name
@@ -117,6 +116,6 @@ async def on_get_parent_categories(callback: CallbackQuery, widget: Any, dialog_
     else:
         parent_category_id = None
 
-    categories = await ApiCategory(dm=dialog_manager).get(parent_id=parent_category_id)
+    categories = await ApiCategory(dm=dialog_manager).get(parent_id=parent_category_id, include_static=True)
     dialog_manager.dialog_data['d_categories'] = await Tool.get_dict_categories(categories, "has_children")
     await dialog_manager.show(show_mode=ShowMode.EDIT)
