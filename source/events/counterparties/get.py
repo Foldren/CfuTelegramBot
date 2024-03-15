@@ -24,18 +24,18 @@ async def on_select_counterparty(callback: CallbackQuery, widget: Select, dialog
                                  selected_counterparty: DialogCounterparty):
     if 'show_distrib' in dialog_manager.dialog_data:
         if dialog_manager.dialog_data['show_distrib']:
-            await dialog_manager.start(state=UpdateCounterpartyStates.attach_new_category, show_mode=ShowMode.NO_UPDATE)
-
             # Формируем начальный список категорий (главных) доступных для прикрепления
             categories = await ApiCategory(dm=dialog_manager).get(parent_id=None, include_static=True)
 
-            dialog_manager.dialog_data.update({
-                "is_child_categories": False,
-                'selected_counterparty': DialogCounterparty.to_dict(selected_counterparty),
-                'd_categories': await Tool.get_dict_categories(categories, "has_children")
-            })
+            await dialog_manager.start(
+                state=UpdateCounterpartyStates.attach_new_category,
+                data={
+                    "is_child_categories": False,
+                    'selected_counterparty': DialogCounterparty.to_dict(selected_counterparty),
+                    'd_categories': await Tool.get_dict_categories(categories, "has_children")
+                }
+            )
 
-            await dialog_manager.show(show_mode=ShowMode.EDIT)
             return
 
     await callback.answer()

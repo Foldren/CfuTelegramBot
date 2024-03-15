@@ -60,9 +60,22 @@ class Tool:
                 cls_fields = fields(double_obj)
                 for field in cls_fields:
                     if field.name != "data":
-                        setattr(double_obj, field.name, field.type(item[field.name]))
+                        setattr(double_obj, field.name, field.type(item[field.name]) if item[field.name] is not None
+                        else None)
 
                 return double_obj
+
+    @staticmethod
+    async def get_counterparties_show_mode(dialog_data: dict):
+        if 'show_distrib' in dialog_data:
+            if dialog_data['show_distrib']:
+                cps_show_mode = 'not_distributed'
+            else:
+                cps_show_mode = 'distributed'
+        else:
+            cps_show_mode = 'distributed'
+
+        return cps_show_mode
 
     @staticmethod
     async def handle_exceptions(response: Response, dm: DialogManager,

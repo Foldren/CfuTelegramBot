@@ -25,9 +25,8 @@ class DCategory(DataClassJsonMixin):
 
 @dataclass
 class DCounterparty(DataClassJsonMixin):
-    __slots__ = {"id", "name", "inn", "categoryID", "categoryName"}
     id: int
     name: str
     inn: str
-    categoryID: int
-    categoryName: str
+    categoryID: int = None
+    categoryName: str = None

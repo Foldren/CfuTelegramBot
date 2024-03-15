@@ -1,8 +1,24 @@
+from typing import Any
+
 from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.kbd.select import ManagedMultiselect
 from modules.gateway.subclasses.counterparty import ApiCounterparty
+from states.counterparties import DeleteCounterpartiesStates
+
+
+async def on_start_delete_counterparty(callback: CallbackQuery, widget: Any, dialog_manager: DialogManager):
+    if 'show_distrib' in dialog_manager.dialog_data:
+        if dialog_manager.dialog_data['show_distrib']:
+            cps_show_mode = 'not_distributed'
+        else:
+            cps_show_mode = 'distributed'
+    else:
+        cps_show_mode = 'distributed'
+
+    await dialog_manager.start(state=DeleteCounterpartiesStates.select_counterparties,
+                               data={'cps_show_mode': cps_show_mode})
 
 
 async def on_select_counterparties(event: CallbackQuery, select: ManagedMultiselect, dialog_manager: DialogManager,

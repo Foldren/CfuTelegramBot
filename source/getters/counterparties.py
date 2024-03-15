@@ -4,14 +4,11 @@ from modules.gateway.subclasses.counterparty import ApiCounterparty
 
 async def get_counterparties(**kwargs):
     dialog_manager = kwargs['dialog_manager']
+    cps_show_mode = await Tool.get_counterparties_show_mode(dialog_manager.dialog_data)
 
-    if 'show_distrib' in dialog_manager.dialog_data:
-        if dialog_manager.dialog_data['show_distrib']:
-            cps_show_mode = 'not_distributed'
-        else:
-            cps_show_mode = 'distributed'
-    else:
-        cps_show_mode = 'distributed'
+    if dialog_manager.start_data is not None:
+        if 'cps_show_mode' in dialog_manager.start_data:
+            cps_show_mode = dialog_manager.start_data['cps_show_mode']
 
     counterparties = await ApiCounterparty(dm=dialog_manager).get(show_mode=cps_show_mode)
     dict_counterparties = await Tool.get_dict_counterparties(counterparties)
@@ -39,6 +36,13 @@ async def get_selected_counterparty(**kwargs):
 
 
 async def get_attach_categories(**kwargs):
+    if 'd_categories' in kwargs['dialog_manager'].start_data:
+        kwargs['dialog_manager'].dialog_data.update({
+            'd_categories': kwargs['dialog_manager'].start_data['d_categories'],
+            'is_child_categories': kwargs['dialog_manager'].start_data['is_child_categories'],
+            'selected_counterparty': kwargs['dialog_manager'].start_data['selected_counterparty']
+        })
+
     return {
         "categories": kwargs['dialog_manager'].dialog_data['d_categories'],
         "is_child_categories": kwargs['dialog_manager'].dialog_data['is_child_categories']

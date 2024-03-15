@@ -11,6 +11,19 @@ from modules.gateway.subclasses.counterparty import ApiCounterparty
 from states.counterparties import UpdateCounterpartyStates
 
 
+async def on_start_update_counterparty(callback: CallbackQuery, widget: Any, dialog_manager: DialogManager):
+    if 'show_distrib' in dialog_manager.dialog_data:
+        if dialog_manager.dialog_data['show_distrib']:
+            cps_show_mode = 'not_distributed'
+        else:
+            cps_show_mode = 'distributed'
+    else:
+        cps_show_mode = 'distributed'
+
+    await dialog_manager.start(state=UpdateCounterpartyStates.select_counterparty,
+                               data={'cps_show_mode': cps_show_mode})
+
+
 @get_wselect_item(data_cls=DialogCounterparty, items_name='d_counterparties')
 async def on_select_counterparty(callback: CallbackQuery, widget: Select, dialog_manager: DialogManager,
                                  selected_counterparty: DialogCounterparty):
