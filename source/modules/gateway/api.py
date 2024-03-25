@@ -105,7 +105,7 @@ class ApiGateway:
             response = await async_session.post(
                 url=self.main_path + "/auth/sign-in",
                 headers=self.headers,
-                json=asdict(SignInRequest(email, password)),
+                json=asdict(SignInRequest(email.replace(" ", ""), password.replace(" ", ""))),
             )
 
         rpc_response = await Tool.handle_exceptions(response, self.dm, SignInResponse)

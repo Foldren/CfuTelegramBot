@@ -12,6 +12,7 @@ from config import TOKEN, REDIS_OM_URL
 from components import handlers
 from modules.redis.redis_om import RedisOM
 
+
 admin_dialogs = [
     authorization, change_menu,
     get_categories, create_category, update_category, delete_categories,
