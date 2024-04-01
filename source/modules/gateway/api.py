@@ -1,6 +1,7 @@
 from dataclasses import asdict, dataclass
 from typing import Any
 import jwt
+from aiogram.dispatcher.event.bases import CancelHandler
 from aiogram_dialog import DialogManager
 from httpx import AsyncClient
 from jwt import ExpiredSignatureError
@@ -39,10 +40,12 @@ class ApiGateway:
                 cookies=user.cookies
             )
 
-            refresh_response = await Tool.handle_exceptions(response_token, self.dm, RefreshResponse)
-
             # Обновляем access_token
-            access_token = refresh_response.accessToken
+            try:
+                access_token = response_token.json()['data']['accessToken']
+            except Exception:
+                raise CancelHandler(response_token.json()['data']['error'])
+
             self.headers['Authorization'] = 'Bearer ' + access_token
 
             user.accessToken = access_token
@@ -61,11 +64,11 @@ class ApiGateway:
         try:
             # Преобразуем объект данных в dict, удаляем пустые значения
             dict_params = asdict(request_obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
-            # Cтавим условия на установку параметров в зависимости от метода
+            # Cтавим условия на установку параметров, в зависимости от метода
             json_data = dict_params if (method == "post" or method == "patch") and not data_in_url else None
             params_data = dict_params if (method == "get" or method == "delete") and not data_in_url else None
 
-        # Если параметры указаны в строке то указываем их в None
+        # Если параметры указаны в строке, то указываем их в None
         except TypeError:
             json_data = None
             params_data = None
