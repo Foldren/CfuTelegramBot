@@ -48,9 +48,9 @@ class ApiGateway:
                 await self.dm.start(state=AuthorizationStates.start, mode=StartMode.RESET_STACK)
                 return
 
-            self.headers['Authorization'] = 'Bearer ' + rpc_response.access_token
+            self.headers['Authorization'] = 'Bearer ' + rpc_response.accessToken
 
-            user.accessToken = rpc_response.access_token
+            user.accessToken = rpc_response.accessToken
             user.cookies = {'refresh': response_token.cookies['refresh']}
             await redis_conn.save(user)
 
