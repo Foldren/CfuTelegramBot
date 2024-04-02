@@ -36,12 +36,13 @@ async def get_selected_counterparty(**kwargs):
 
 
 async def get_attach_categories(**kwargs):
-    if 'd_categories' in kwargs['dialog_manager'].start_data:
-        kwargs['dialog_manager'].dialog_data.update({
-            'd_categories': kwargs['dialog_manager'].start_data['d_categories'],
-            'is_child_categories': kwargs['dialog_manager'].start_data['is_child_categories'],
-            'selected_counterparty': kwargs['dialog_manager'].start_data['selected_counterparty']
-        })
+    if kwargs['dialog_manager'].start_data is not None:
+        if 'd_categories' in kwargs['dialog_manager'].start_data:
+            kwargs['dialog_manager'].dialog_data.update({
+                'd_categories': kwargs['dialog_manager'].start_data['d_categories'],
+                'is_child_categories': kwargs['dialog_manager'].start_data['is_child_categories'],
+                'selected_counterparty': kwargs['dialog_manager'].start_data['selected_counterparty']
+            })
 
     return {
         "categories": kwargs['dialog_manager'].dialog_data['d_categories'],

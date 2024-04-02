@@ -1,8 +1,7 @@
 from dataclasses import asdict, dataclass
 from typing import Any
 import jwt
-from aiogram.dispatcher.event.bases import CancelHandler
-from aiogram_dialog import DialogManager
+from aiogram_dialog import DialogManager, StartMode
 from httpx import AsyncClient
 from jwt import ExpiredSignatureError
 from components.tools import Tool
@@ -11,6 +10,7 @@ from modules.gateway.requests.auth import SignInRequest
 from modules.gateway.responses.auth import SignInResponse, RefreshResponse
 from modules.redis.models import User
 from modules.redis.redis_om import RedisOM
+from states.authorization import AuthorizationStates
 
 
 class ApiGateway:
@@ -41,14 +41,16 @@ class ApiGateway:
             )
 
             # Обновляем access_token
-            try:
-                access_token = response_token.json()['data']['accessToken']
-            except Exception:
-                raise CancelHandler(response_token.json()['data']['error'])
+            rpc_response = await Tool.handle_exceptions(response_token, self.dm, RefreshResponse)
 
-            self.headers['Authorization'] = 'Bearer ' + access_token
+            if rpc_response == "auth_error":
+                await redis_conn.delete(User, pk=chat_id)
+                await self.dm.start(state=AuthorizationStates.start, mode=StartMode.RESET_STACK)
+                return
 
-            user.accessToken = access_token
+            self.headers['Authorization'] = 'Bearer ' + rpc_response.access_token
+
+            user.accessToken = rpc_response.access_token
             user.cookies = {'refresh': response_token.cookies['refresh']}
             await redis_conn.save(user)
 

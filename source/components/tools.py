@@ -78,37 +78,31 @@ class Tool:
         return cps_show_mode
 
     @staticmethod
-    async def handle_exceptions(response: Response, dm: DialogManager,
-                                response_type: dataclass) -> Any:
+    async def handle_exceptions(response: Response, dm: DialogManager, response_type: dataclass) -> Any:
         title = Text.title('Ошибка')
         msg_text = "\n⛔ "
         chat_id = await Tool.get_chat_id(dm.event)
 
+        # Проверяем на ошибку http
         try:
-            rpc_response = RpcResponse.from_dict(response.json())
-            rpc_response.data = response_type.from_dict(rpc_response.data) if rpc_response.data is not None else None
-        except AttributeError:
-            rpc_response = RpcExceptionResponse.from_dict(response.json())
-
-        if hasattr(rpc_response, "data"):
-            if hasattr(rpc_response, "error"):
-                if rpc_response.error is not None:
-                    await dm.event.bot.send_message(chat_id=chat_id, text=title + msg_text + rpc_response.error.message)
-                    # Если неверный логин пароль, начинаем диалог с авторизацией
-                    if rpc_response.error.statusCode == 401:
-                        redis_conn: RedisOM = dm.middleware_data['redis']
-                        await redis_conn.delete(User, pk=chat_id)
-                        await dm.start(state=AuthorizationStates.start, mode=StartMode.RESET_STACK)
-                    raise CancelHandler(rpc_response.error.message)
-                else:
-                    return response_type.from_dict(rpc_response.data)
-            else:
-                return response_type.from_dict(rpc_response.data)
-        else:
-            for row in rpc_response.message:
+            http_error_response = RpcExceptionResponse.from_dict(response.json())
+            for row in http_error_response.message:
                 msg_text += row + ". "
             await dm.event.bot.send_message(chat_id=chat_id, text=title + msg_text)
-            raise CancelHandler
+            raise CancelHandler(msg_text)
+
+        # Если нет ошибки http
+        except KeyError:
+            rpc_response = RpcResponse.from_dict(response.json())
+
+            # если вернулась data
+            if rpc_response.data is not None:
+                return response_type.from_dict(rpc_response.data)
+            else:
+                if "Неверный email или пароль" in rpc_response.error.message:
+                    return "auth_error"
+                await dm.event.bot.send_message(chat_id=chat_id, text=title + msg_text + rpc_response.error.message)
+                raise CancelHandler(rpc_response.error.message)
 
     @staticmethod
     async def get_chat_id(event: Union[Message, CallbackQuery]) -> int:
